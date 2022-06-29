@@ -1,3 +1,5 @@
+use std::{borrow::BorrowMut, cell::RefCell};
+
 use stylist::yew::styled_component;
 use yew::prelude::*;
 
@@ -11,77 +13,115 @@ pub struct Node {
     pub is_active: bool,
 }
 
+pub struct MoveCmd {
+    id: usize,
+    x: u64,
+    y: u64,
+}
+
+pub enum NodesAction {
+    Move(MoveCmd),
+    Activate(usize),
+    Deactivate(usize),
+}
+
+pub struct NodesState {
+    pub nodes: Vec<Node>,
+}
+
+impl Default for NodesState {
+    fn default() -> Self {
+        Self {
+            nodes: vec![
+                Node {
+                    id: 0,
+                    title: "Node 0".to_string(),
+                    x: 0,
+                    y: 0,
+                    color: "red".to_string(),
+                    is_active: false,
+                },
+                Node {
+                    id: 1,
+                    title: "Node 0".to_string(),
+                    x: 0,
+                    y: 100,
+                    color: "blue".to_string(),
+                    is_active: false,
+                },
+            ],
+        }
+    }
+}
+
+impl Reducible for NodesState {
+    type Action = NodesAction;
+
+    fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
+        let mut nodes = self.nodes.clone();
+        let updated_nodes = match action {
+            NodesAction::Move(MoveCmd { id, x, y }) => {
+                let node = nodes.iter_mut().find(|a| a.id == id);
+                if let Some(node) = node {
+                    node.x = x;
+                    node.y = y;
+                }
+                nodes
+            }
+            NodesAction::Activate(id) => {
+                let node = nodes.iter_mut().find(|a| a.id == id);
+                if let Some(node) = node {
+                    node.is_active = true
+                }
+                nodes
+            }
+            NodesAction::Deactivate(id) => {
+                let node = nodes.iter_mut().find(|a| a.id == id);
+                if let Some(node) = node {
+                    node.is_active = false
+                }
+                nodes
+            }
+        };
+
+        Self {
+            nodes: updated_nodes,
+        }
+        .into()
+    }
+}
+
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderNodesProps {}
 
 #[styled_component(RenderNodes)]
 pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
-    let step = use_state(|| 0);
-    let nodes = use_state(|| {
-        vec![
-            Node {
-                id: 0,
-                title: "Node 0".to_string(),
-                x: 0,
-                y: 0,
-                color: "red".to_string(),
-                is_active: false,
-            },
-            Node {
-                id: 1,
-                title: "Node 0".to_string(),
-                x: 0,
-                y: 100,
-                color: "blue".to_string(),
-                is_active: false,
-            },
-        ]
-    });
+    let nodes_store = use_reducer(NodesState::default);
 
-    let on_step_btn_click = {
-        let step = step.clone();
-        // Callback::from(move |_| step.set(*step + 1))
-    };
     let on_container_mouse_move = {
-        let nodes = nodes.clone();
+        let nodes_store = nodes_store.clone();
+        let nodes = nodes_store.nodes.clone();
         Callback::from(move |e: MouseEvent| {
-            let updated = nodes
-                .iter()
-                .map(|node| {
-                    let mut tmp = node.clone();
-                    if tmp.is_active {
-                        tmp.x = (e.offset_x().clamp(40, 600) - 40 )as u64;
-                        tmp.y = (e.offset_y().clamp(25, 400) - 25 )as u64;
-                    }
-                    tmp
-                })
-                .collect();
-            nodes.set(updated);
+            let active_node = nodes.iter().find(|n| n.is_active);
+            if let Some(Node {
+                id,
+                is_active: _,
+                color: _,
+                title: _,
+                x: _,
+                y: _,
+            }) = active_node
+            {
+                nodes_store.dispatch(NodesAction::Move(MoveCmd {
+                    id: *id,
+                    x: (e.offset_x().clamp(40, 600) - 40) as u64,
+                    y: (e.offset_y().clamp(25, 400) - 25) as u64,
+                }))
+            }
         })
     };
 
-    {
-        let nodes = nodes.clone();
-        let step = step.clone();
-        let step_deps = step.clone();
-        use_effect_with_deps(
-            move |_| {
-                let updated = nodes
-                    .iter()
-                    .map(|node| {
-                        let mut tmp = node.clone();
-                        tmp.x += *step;
-                        tmp
-                    })
-                    .collect();
-                nodes.set(updated);
-                || ()
-            },
-            step_deps,
-        );
-    }
-
-    let render_nodes = nodes
+    let render_nodes = nodes_store.nodes
         .iter()
         .map(|node| {
             let node = node.clone();
@@ -118,23 +158,22 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
             //     })
             // };
             let on_node_click = {
-                let nodes = nodes.clone();
-                Callback::from(move |_| {
-                    let updated = nodes
-                        .iter()
-                    .map(|node_item| {
-                            let mut tmp = node_item.clone();
-                            if tmp.id == node.id {
-                                tmp.is_active = !tmp.is_active;
-                            }
-                            tmp
-                        })
-                        .collect();
-                    nodes.set(updated);
+                let node = node.clone();
+                let nodes_store  = nodes_store.clone();
+                Callback::from( move |_| {
+                    let nodes = nodes_store.nodes.clone();
+                    let curr_node = nodes.iter().find(|n| n.id == node.id);
+                    if let Some(curr_node) = curr_node {
+                        if curr_node.is_active {
+                            nodes_store.dispatch(NodesAction::Deactivate(curr_node.id));
+                        } else {
+                            nodes_store.dispatch(NodesAction::Activate(curr_node.id));
+                        }
+                    }
                 })
             };
             html! {
-                <div 
+                <div
                     // onmousedown={on_node_mouse_down} 
                     // onmouseup={on_node_mouse_up}  
                     onclick={on_node_click}
