@@ -127,45 +127,34 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
         .map(|node| {
             let node = node.clone();
 
-            // let on_node_mouse_down = {
-            //     let nodes_store = nodes_store.clone();
-            //     let nodes = nodes_store.nodes.clone();
-            //     Callback::from(move |_| {
-                    
-            //     })
-            // };
-            // let on_node_mouse_up = {
-            //     let nodes = nodes.clone();
-            //     Callback::from(move |_| {
-            //         let updated = nodes
-            //             .iter()
-            //         .map(|node_item| {
-            //                 let mut tmp = node_item.clone();
-            //                 if tmp.id == node.id {
-            //                     tmp.is_active = false;
-            //                 }
-            //                 tmp
-            //             })
-            //             .collect();
-            //         nodes.set(updated);
-            //     })
-            // };
-            let on_node_click = {
-                let node = node.clone();
-                let nodes_store  = nodes_store.clone();
-                Callback::from( move |_| {
-                        if node.is_active {
-                            nodes_store.dispatch(NodesAction::Deactivate(node.id));
-                        } else {
-                            nodes_store.dispatch(NodesAction::Activate(node.id));
-                        }
+            let on_node_mouse_down = {
+                let nodes_store = nodes_store.clone();
+                Callback::from(move |_| {
+                    nodes_store.dispatch(NodesAction::Activate(node.id))
                 })
             };
+            let on_node_mouse_up = {
+                let nodes_store = nodes_store.clone();
+                Callback::from(move |_| {
+                    nodes_store.dispatch(NodesAction::Deactivate(node.id))
+                })
+            };
+            // let on_node_click = {
+            //     let node = node.clone();
+            //     let nodes_store  = nodes_store.clone();
+            //     Callback::from( move |_| {
+            //         if node.is_active {
+            //             nodes_store.dispatch(NodesAction::Deactivate(node.id));
+            //         } else {
+            //             nodes_store.dispatch(NodesAction::Activate(node.id));
+            //         }
+            //     })
+            // };
             html! {
                 <div
-                    // onmousedown={on_node_mouse_down} 
-                    // onmouseup={on_node_mouse_up}  
-                    onclick={on_node_click}
+                    onmousedown={on_node_mouse_down}
+                    onmouseup={on_node_mouse_up}
+                    // onclick={on_node_click}
                     style={format!("user-select: none; width: 80px; height: 50px; position: absolute; left: {}px; top: {}px; border: 1px solid {};", node.x, node.y, node.color)}>
                     {format!("node: {} x:{} y:{}", node.title, node.x, node.y)}
                 </div>
