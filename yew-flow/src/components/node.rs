@@ -14,13 +14,19 @@ pub struct Node {
 }
 
 pub struct MoveCmd {
-    id: usize,
-    x: u64,
-    y: u64,
+    pub id: usize,
+    pub x: u64,
+    pub y: u64,
+}
+
+pub struct MoveActiveCmd {
+    pub x: u64,
+    pub y: u64,
 }
 
 pub enum NodesAction {
     Move(MoveCmd),
+    MoveActive(MoveActiveCmd),
     Activate(usize),
     Deactivate(usize),
 }
@@ -68,6 +74,14 @@ impl Reducible for NodesState {
                 }
                 nodes
             }
+            NodesAction::MoveActive(MoveActiveCmd { x, y }) => {
+                let active_node = nodes.iter_mut().find(|n| n.is_active);
+                if let Some(active_node) = active_node {
+                    active_node.x = x;
+                    active_node.y = y;
+                }
+                nodes
+            }
             NodesAction::Activate(id) => {
                 let node = nodes.iter_mut().find(|a| a.id == id);
                 if let Some(node) = node {
@@ -100,24 +114,11 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
 
     let on_container_mouse_move = {
         let nodes_store = nodes_store.clone();
-        let nodes = nodes_store.nodes.clone();
         Callback::from(move |e: MouseEvent| {
-            let active_node = nodes.iter().find(|n| n.is_active);
-            if let Some(Node {
-                id,
-                is_active: _,
-                color: _,
-                title: _,
-                x: _,
-                y: _,
-            }) = active_node
-            {
-                nodes_store.dispatch(NodesAction::Move(MoveCmd {
-                    id: *id,
-                    x: (e.offset_x().clamp(40, 600) - 40) as u64,
-                    y: (e.offset_y().clamp(25, 400) - 25) as u64,
-                }))
-            }
+            nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd {
+                x: (e.offset_x().clamp(40, 600) - 40) as u64,
+                y: (e.offset_y().clamp(25, 400) - 25) as u64,
+            }))
         })
     };
 
@@ -125,20 +126,12 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
         .iter()
         .map(|node| {
             let node = node.clone();
+
             // let on_node_mouse_down = {
-            //     let nodes = nodes.clone();
+            //     let nodes_store = nodes_store.clone();
+            //     let nodes = nodes_store.nodes.clone();
             //     Callback::from(move |_| {
-            //         let updated = nodes
-            //             .iter()
-            //             .map(|node_item| {
-            //                 let mut tmp = node_item.clone();
-            //                 if tmp.id == node.id {
-            //                     tmp.is_active = true;
-            //                 }
-            //                 tmp
-            //             })
-            //             .collect();
-            //         nodes.set(updated);
+                    
             //     })
             // };
             // let on_node_mouse_up = {
@@ -161,15 +154,11 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
                 let node = node.clone();
                 let nodes_store  = nodes_store.clone();
                 Callback::from( move |_| {
-                    let nodes = nodes_store.nodes.clone();
-                    let curr_node = nodes.iter().find(|n| n.id == node.id);
-                    if let Some(curr_node) = curr_node {
-                        if curr_node.is_active {
-                            nodes_store.dispatch(NodesAction::Deactivate(curr_node.id));
+                        if node.is_active {
+                            nodes_store.dispatch(NodesAction::Deactivate(node.id));
                         } else {
-                            nodes_store.dispatch(NodesAction::Activate(curr_node.id));
+                            nodes_store.dispatch(NodesAction::Activate(node.id));
                         }
-                    }
                 })
             };
             html! {
