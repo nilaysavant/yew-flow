@@ -5,6 +5,9 @@ version = 3
 [[package]]
 name = "yew-app"
 version = "0.1.0"
+dependencies = [
+ "yew-flow",
+]
 
 [[package]]
 name = "yew-flow"
