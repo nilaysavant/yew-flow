@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+colorsys = "0.6"
 log = "0.4"
 stylist = { version = "0.10", features = ["yew_integration"]}
 wasm-logger = "0.2.0"

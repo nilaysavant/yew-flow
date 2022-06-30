@@ -1,3 +1,4 @@
+use colorsys::Hsl;
 use stylist::yew::styled_component;
 use web_sys::HtmlElement;
 use yew::prelude::*;
@@ -8,7 +9,7 @@ pub struct Node {
     pub title: String,
     pub x: u64,
     pub y: u64,
-    pub color: String,
+    pub color: Hsl,
     pub is_active: bool,
 }
 
@@ -42,12 +43,14 @@ impl Default for NodesState {
             .map(|i| {
                 (0..5).into_iter().map(move |j| {
                     let id = i * 10 + j;
+                    let mut color = Hsl::new(0., 100., 50., Some(0.8));
+                    color.set_hue(360. / 15. * ((i * j) as f64));
                     Node {
                         id,
                         title: format!("Node {}", id),
                         x: (400 / 4 * i) as u64,
                         y: (400 / 5 * j) as u64,
-                        color: "red".to_string(),
+                        color,
                         is_active: false,
                     }
                 })
@@ -157,13 +160,19 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
             //         }
             //     })
             // };
+
+            let mut bg_color = node.color.clone();
+            bg_color.set_lightness(25.);
+            bg_color.set_saturation(50.);
             html! {
                 <div
                     onmousedown={on_node_mouse_down}
                     onmouseup={on_node_mouse_up}
                     // onclick={on_node_click}
-                    style={format!("user-select: none; width: 80px; height: 50px; position: absolute; left: {}px; top: {}px; border: 1px solid {};", node.x, node.y, node.color)}>
-                    {format!("node: {} x:{} y:{}", node.title, node.x, node.y)}
+                    style={format!("display: flex; align-items: center; justify-content: center; border-radius: 50px; user-select: none; width: 80px; height: 50px; position: absolute; left: {}px; top: {}px; border: 3px solid {}; background: {};", node.x, node.y, node.color.to_css_string(), bg_color.to_css_string())}>
+                    {format!("{}", node.title)}
+                    <br />
+                    {format!("({},{})", node.x, node.y)}
                 </div>
             }
         })
@@ -173,7 +182,7 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
         <>
             // <button onclick={on_step_btn_click.clone()}>{"increment"}</button>
             // <p>{format!("step: {} ", *step)}</p>
-            <div ref={container_ref} class={css!("background: gray; width: 600px; height: 400px; position: relative; font-size: 14px; margin: 50px;")} onmousemove={on_container_mouse_move}>
+            <div ref={container_ref} class={css!("color: #e0e0e0; background: #171717; border: 2px solid #949494; border-radius: 5px; width: 600px; height: 400px; position: relative; font-size: 12px; margin: 50px;")} onmousemove={on_container_mouse_move}>
                 {render_nodes}
             </div>
         </>
