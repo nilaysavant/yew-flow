@@ -113,10 +113,9 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
     let on_container_mouse_move = {
         let nodes_store = nodes_store.clone();
         Callback::from(move |e: MouseEvent| {
-            nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd {
-                x: (e.offset_x().clamp(40, 600) - 40) as u64,
-                y: (e.offset_y().clamp(25, 400) - 25) as u64,
-            }))
+            let x = (e.page_x() - e.offset_x() / 2) as u64;
+            let y = (e.page_y() - e.offset_y() / 2) as u64;
+            nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd { x, y }))
         })
     };
 
@@ -164,7 +163,7 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
         <>
             // <button onclick={on_step_btn_click.clone()}>{"increment"}</button>
             // <p>{format!("step: {} ", *step)}</p>
-            <div class={css!("background: gray; width: 600px; height: 400px; position: relative; font-size: 14px;")} onmouseover={on_container_mouse_move}>
+            <div class={css!("background: gray; width: 600px; height: 400px; position: relative; font-size: 14px;")} onmousemove={on_container_mouse_move}>
                 {render_nodes}
             </div>
         </>
