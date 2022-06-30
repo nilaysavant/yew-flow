@@ -567,6 +567,7 @@ dependencies = [
  "log",
  "stylist",
  "wasm-logger",
+ "web-sys",
  "yew",
 ]
 

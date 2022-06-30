@@ -1,4 +1,5 @@
 use stylist::yew::styled_component;
+use web_sys::HtmlElement;
 use yew::prelude::*;
 
 #[derive(Clone, PartialEq, Properties)]
@@ -108,13 +109,23 @@ pub struct RenderNodesProps {}
 
 #[styled_component(RenderNodes)]
 pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
+    let container_ref = use_node_ref();
     let nodes_store = use_reducer(NodesState::default);
 
     let on_container_mouse_move = {
+        let container_ref = container_ref.clone();
         let nodes_store = nodes_store.clone();
+        // set init offset value to 0 by default
+        let mut offset_left = 0;
+        let mut offset_top = 0;
+        if let Some(container) = container_ref.cast::<HtmlElement>() {
+            // set proper container offset values
+            offset_left = container.offset_left();
+            offset_top = container.offset_top();
+        }
         Callback::from(move |e: MouseEvent| {
-            let x = (e.page_x() - e.offset_x() / 2) as u64;
-            let y = (e.page_y() - e.offset_y() / 2) as u64;
+            let x = (e.page_x() - offset_left - 40) as u64;
+            let y = (e.page_y() - offset_top - 25) as u64;
             nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd { x, y }))
         })
     };
@@ -163,7 +174,7 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
         <>
             // <button onclick={on_step_btn_click.clone()}>{"increment"}</button>
             // <p>{format!("step: {} ", *step)}</p>
-            <div class={css!("background: gray; width: 600px; height: 400px; position: relative; font-size: 14px;")} onmousemove={on_container_mouse_move}>
+            <div ref={container_ref} class={css!("background: gray; width: 600px; height: 400px; position: relative; font-size: 14px; margin: 50px;")} onmousemove={on_container_mouse_move}>
                 {render_nodes}
             </div>
         </>
