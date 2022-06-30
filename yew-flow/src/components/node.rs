@@ -36,6 +36,7 @@ pub struct NodesState {
 
 impl Default for NodesState {
     fn default() -> Self {
+        // Generate a grid of nodes
         let nodes = (0..5)
             .into_iter()
             .map(|i| {
