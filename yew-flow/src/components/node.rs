@@ -36,26 +36,24 @@ pub struct NodesState {
 
 impl Default for NodesState {
     fn default() -> Self {
-        Self {
-            nodes: vec![
-                Node {
-                    id: 0,
-                    title: "Node 0".to_string(),
-                    x: 0,
-                    y: 0,
-                    color: "red".to_string(),
-                    is_active: false,
-                },
-                Node {
-                    id: 1,
-                    title: "Node 0".to_string(),
-                    x: 0,
-                    y: 100,
-                    color: "blue".to_string(),
-                    is_active: false,
-                },
-            ],
-        }
+        let nodes = (0..5)
+            .into_iter()
+            .map(|i| {
+                (0..5).into_iter().map(move |j| {
+                    let id = i * 10 + j;
+                    Node {
+                        id,
+                        title: format!("Node {}", id),
+                        x: (400 / 4 * i) as u64,
+                        y: (400 / 5 * j) as u64,
+                        color: "red".to_string(),
+                        is_active: false,
+                    }
+                })
+            })
+            .flatten()
+            .collect::<Vec<Node>>();
+        Self { nodes }
     }
 }
 
