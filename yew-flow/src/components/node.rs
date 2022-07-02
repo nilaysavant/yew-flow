@@ -45,6 +45,7 @@ pub enum NodesAction {
     Deactivate(usize),
 }
 
+#[derive(Clone, PartialEq, Debug)]
 pub struct NodesState {
     pub nodes: Vec<Node>,
 }
@@ -279,7 +280,7 @@ pub struct RenderNodesProps {}
 pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
     log::info!("render_nodes");
     let container_ref = use_node_ref();
-    let nodes_store = use_reducer(NodesState::default);
+    let nodes_store = use_reducer_eq(NodesState::default);
 
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
