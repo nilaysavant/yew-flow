@@ -3,6 +3,8 @@ use stylist::yew::styled_component;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 
+use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
+
 #[derive(Clone, PartialEq, Properties)]
 pub struct Node {
     pub id: usize,
@@ -106,6 +108,27 @@ impl Reducible for NodesState {
     }
 }
 
+/// Used to store container dimensions like
+/// **offsets**, **width**, **height** etc
+#[derive(Debug, Clone, Copy)]
+struct ContainerDimensions {
+    offset_left: i32,
+    offset_top: i32,
+    width: i32,
+    height: i32,
+}
+
+impl Default for ContainerDimensions {
+    fn default() -> Self {
+        Self {
+            offset_left: Default::default(),
+            offset_top: Default::default(),
+            width: Default::default(),
+            height: Default::default(),
+        }
+    }
+}
+
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderNodesProps {}
 
@@ -117,17 +140,17 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
         let nodes_store = nodes_store.clone();
-        // set init offset value to 0 by default
-        let mut offset_left = 0;
-        let mut offset_top = 0;
+        let mut container_dimensions = ContainerDimensions::default();
         if let Some(container) = container_ref.cast::<HtmlElement>() {
             // set proper container offset values
-            offset_left = container.offset_left();
-            offset_top = container.offset_top();
+            container_dimensions.offset_left = container.offset_left();
+            container_dimensions.offset_top = container.offset_top();
+            container_dimensions.width = container.offset_width();
+            container_dimensions.height = container.offset_height();
         }
         Callback::from(move |e: MouseEvent| {
-            let x = (e.page_x() - offset_left - 40) as u64;
-            let y = (e.page_y() - offset_top - 25) as u64;
+            let x = (e.page_x() - container_dimensions.offset_left - 40) as u64;
+            let y = (e.page_y() - container_dimensions.offset_top - 25) as u64;
             nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd { x, y }))
         })
     };
@@ -169,7 +192,14 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
                     onmousedown={on_node_mouse_down}
                     onmouseup={on_node_mouse_up}
                     // onclick={on_node_click}
-                    style={format!("display: flex; align-items: center; justify-content: center; border-radius: 50px; user-select: none; width: 80px; height: 50px; position: absolute; left: {}px; top: {}px; border: 3px solid {}; background: {};", node.x, node.y, node.color.to_css_string(), bg_color.to_css_string())}>
+                    style={format!("display: flex; align-items: center; justify-content: center; border-radius: 50px; user-select: none; width: {width}px; height: {height}px; position: absolute; left: {left}px; top: {top}px; border: 3px solid {border_color}; background: {background};", 
+                        width = NODE_WIDTH,
+                        height = NODE_HEIGHT,
+                        left = node.x,
+                        top = node.y,
+                        border_color = node.color.to_css_string(),
+                        background = bg_color.to_css_string(),
+                    )}>
                     {format!("{}", node.title)}
                     <br />
                     {format!("({},{})", node.x, node.y)}
