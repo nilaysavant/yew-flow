@@ -145,13 +145,19 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
             // set proper container offset values
             container_dimensions.offset_left = container.offset_left();
             container_dimensions.offset_top = container.offset_top();
-            container_dimensions.width = container.offset_width();
-            container_dimensions.height = container.offset_height();
+            container_dimensions.width = container.client_width();
+            container_dimensions.height = container.client_height();
         }
         Callback::from(move |e: MouseEvent| {
-            let x = (e.page_x() - container_dimensions.offset_left - NODE_WIDTH / 2) as u64;
-            let y = (e.page_y() - container_dimensions.offset_top - NODE_HEIGHT / 2) as u64;
-            nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd { x, y }))
+            if container_dimensions.width > 0 && container_dimensions.height > 0 {
+                let x = (e.page_x() - container_dimensions.offset_left - NODE_WIDTH / 2)
+                    .clamp(0, container_dimensions.width - NODE_WIDTH)
+                    as u64;
+                let y = (e.page_y() - container_dimensions.offset_top - NODE_HEIGHT / 2)
+                    .clamp(0, container_dimensions.height - NODE_HEIGHT)
+                    as u64;
+                nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd { x, y }))
+            }
         })
     };
 
