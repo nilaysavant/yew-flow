@@ -170,6 +170,7 @@ pub fn render_single_node(
         on_click,
     }: &RenderSingleNodeProps,
 ) -> Html {
+    // log::info!("render_single_node");
     let render_inputs = node
         .inputs
         .iter()
@@ -276,6 +277,7 @@ pub struct RenderNodesProps {}
 
 #[styled_component(RenderNodes)]
 pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
+    log::info!("render_nodes");
     let container_ref = use_node_ref();
     let nodes_store = use_reducer(NodesState::default);
 
