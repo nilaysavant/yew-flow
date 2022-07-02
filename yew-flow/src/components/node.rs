@@ -154,6 +154,124 @@ impl Default for ContainerDimensions {
 }
 
 #[derive(Clone, Properties, PartialEq)]
+pub struct RenderSingleNodeProps {
+    node: Node,
+    on_mouse_down: Callback<MouseEvent>,
+    on_mouse_up: Callback<MouseEvent>,
+    on_click: Callback<MouseEvent>,
+}
+
+#[styled_component(RenderSingleNode)]
+pub fn render_single_node(
+    RenderSingleNodeProps {
+        node,
+        on_mouse_down,
+        on_mouse_up,
+        on_click,
+    }: &RenderSingleNodeProps,
+) -> Html {
+    let render_inputs = node
+        .inputs
+        .iter()
+        .map(|input| {
+            html! {
+                <span class={classes!(
+                    "bg-neutral-600",
+                    "border-2",
+                    "border-neutral-100",
+                    "w-3",
+                    "h-3",
+                    "rounded-full",
+                    "my-1",
+                    )}
+                />
+            }
+        })
+        .collect::<Html>();
+    let render_outputs = node
+        .outputs
+        .iter()
+        .map(|input| {
+            html! {
+                <span class={classes!(
+                    "bg-neutral-600",
+                    "border-2",
+                    "border-neutral-100",
+                    "w-3",
+                    "h-3",
+                    "rounded-full",
+                    "my-1",
+                    )}
+                />
+            }
+        })
+        .collect::<Html>();
+
+    let mut bg_color = node.color.clone();
+    bg_color.set_lightness(25.);
+    bg_color.set_saturation(50.);
+    html! {
+        <div
+            onmousedown={on_mouse_down}
+            onmouseup={on_mouse_up}
+            onclick={on_click}
+            style={format!("width: {width}px; height: {height}px; left: {left}px; top: {top}px; border-color: {border_color}; background: {background};",
+                width = NODE_WIDTH,
+                height = NODE_HEIGHT,
+                left = node.x,
+                top = node.y,
+                border_color = node.color.to_css_string(),
+                background = bg_color.to_css_string(),
+            )}
+            class={classes!(
+                "absolute",
+                "border-2",
+                "rounded-lg",
+                "flex",
+            )}
+        >
+            <div class={classes!(
+                "w-full",
+                "flex",
+                "items-center",
+                "justify-center",
+                "select-none",
+                "relative",
+            )}
+            >
+                // inputs
+                <span class={classes!(
+                    "absolute",
+                    "flex",
+                    "flex-col",
+                    "justify-center",
+                    "h-full",
+                    "-left-2",
+                    )}
+                >
+                   {render_inputs}
+                </span>
+                // outputs
+                <span class={classes!(
+                    "absolute",
+                    "flex",
+                    "flex-col",
+                    "justify-center",
+                    "h-full",
+                    "-right-2",
+                    )}
+                >
+                   {render_outputs}
+                </span>
+                {format!("{}", node.title)}
+                <br />
+                {format!("({},{})", node.x, node.y)}
+            </div>
+        </div>
+    }
+}
+
+#[derive(Clone, Properties, PartialEq)]
 pub struct RenderNodesProps {}
 
 #[styled_component(RenderNodes)]
@@ -202,108 +320,25 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
                     nodes_store.dispatch(NodesAction::Deactivate(node.id))
                 })
             };
-            // let on_node_click = {
-            //     let node = node.clone();
-            //     let nodes_store  = nodes_store.clone();
-            //     Callback::from( move |_| {
-            //         if node.is_active {
-            //             nodes_store.dispatch(NodesAction::Deactivate(node.id));
-            //         } else {
-            //             nodes_store.dispatch(NodesAction::Activate(node.id));
-            //         }
-            //     })
-            // };
+            let on_node_click = {
+                let node = node.clone();
+                let nodes_store  = nodes_store.clone();
+                Callback::from( move |_| {
+                    // if node.is_active {
+                    //     nodes_store.dispatch(NodesAction::Deactivate(node.id));
+                    // } else {
+                    //     nodes_store.dispatch(NodesAction::Activate(node.id));
+                    // }
+                })
+            };
 
-            let render_inputs = node.inputs.iter().map(|input| {
-                html!{
-                    <span class={classes!(
-                        "bg-neutral-600",
-                        "border-2",
-                        "border-neutral-100",
-                        "w-3",
-                        "h-3",
-                        "rounded-full",
-                        "my-1",
-                        )}
-                    />
-                }
-            }).collect::<Html>();
-            let render_outputs = node.outputs.iter().map(|input| {
-                html!{
-                    <span class={classes!(
-                        "bg-neutral-600",
-                        "border-2",
-                        "border-neutral-100",
-                        "w-3",
-                        "h-3",
-                        "rounded-full",
-                        "my-1",
-                        )}
-                    />
-                }
-            }).collect::<Html>();
-
-            let mut bg_color = node.color.clone();
-            bg_color.set_lightness(25.);
-            bg_color.set_saturation(50.);
             html! {
-                <div
-                    onmousedown={on_node_mouse_down}
-                    onmouseup={on_node_mouse_up}
-                    // onclick={on_node_click}
-                    style={format!("width: {width}px; height: {height}px; left: {left}px; top: {top}px; border-color: {border_color}; background: {background};", 
-                        width = NODE_WIDTH,
-                        height = NODE_HEIGHT,
-                        left = node.x,
-                        top = node.y,
-                        border_color = node.color.to_css_string(),
-                        background = bg_color.to_css_string(),
-                    )}
-                    class={classes!(
-                        "absolute",
-                        "border-2",
-                        "rounded-lg", 
-                        "flex", 
-                    )}
-                >
-                    <div class={classes!(
-                        "w-full",
-                        "flex", 
-                        "items-center", 
-                        "justify-center", 
-                        "select-none",
-                        "relative",
-                    )}
-                    >
-                        // inputs
-                        <span class={classes!(
-                            "absolute",
-                            "flex",
-                            "flex-col",
-                            "justify-center",
-                            "h-full",
-                            "-left-2",
-                            )}
-                        >
-                           {render_inputs}
-                        </span>
-                        // outputs
-                        <span class={classes!(
-                            "absolute",
-                            "flex",
-                            "flex-col",
-                            "justify-center",
-                            "h-full",
-                            "-right-2",
-                            )}
-                        >
-                           {render_outputs}
-                        </span>
-                        {format!("{}", node.title)}
-                        <br />
-                        {format!("({},{})", node.x, node.y)}
-                    </div>
-                </div>
+                <RenderSingleNode 
+                    node={node} 
+                    on_mouse_down={on_node_mouse_down}
+                    on_mouse_up={on_node_mouse_up}
+                    on_click={on_node_click}
+                />
             }
         })
         .collect::<Html>();
