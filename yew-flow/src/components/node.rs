@@ -157,9 +157,9 @@ impl Default for ContainerDimensions {
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderSingleNodeProps {
     node: Node,
-    on_mouse_down: Callback<MouseEvent>,
-    on_mouse_up: Callback<MouseEvent>,
-    on_click: Callback<MouseEvent>,
+    on_mouse_down: Callback<Node>,
+    on_mouse_up: Callback<Node>,
+    on_click: Callback<Node>,
 }
 
 #[styled_component(RenderSingleNode)]
@@ -171,21 +171,23 @@ pub fn render_single_node(
         on_click,
     }: &RenderSingleNodeProps,
 ) -> Html {
-    // log::info!("render_single_node");
+    log::info!("render_single_node: {}", node.id);
     let render_inputs = node
         .inputs
         .iter()
         .map(|input| {
             html! {
-                <span class={classes!(
-                    "bg-neutral-600",
-                    "border-2",
-                    "border-neutral-100",
-                    "w-3",
-                    "h-3",
-                    "rounded-full",
-                    "my-1",
-                    )}
+                <span
+                    key={input.id.clone()}
+                    class={classes!(
+                        "bg-neutral-600",
+                        "border-2",
+                        "border-neutral-100",
+                        "w-3",
+                        "h-3",
+                        "rounded-full",
+                        "my-1",
+                        )}
                 />
             }
         })
@@ -193,30 +195,49 @@ pub fn render_single_node(
     let render_outputs = node
         .outputs
         .iter()
-        .map(|input| {
+        .map(|output| {
             html! {
-                <span class={classes!(
-                    "bg-neutral-600",
-                    "border-2",
-                    "border-neutral-100",
-                    "w-3",
-                    "h-3",
-                    "rounded-full",
-                    "my-1",
-                    )}
+                <span
+                    key={output.id.clone()}
+                    class={classes!(
+                        "bg-neutral-600",
+                        "border-2",
+                        "border-neutral-100",
+                        "w-3",
+                        "h-3",
+                        "rounded-full",
+                        "my-1",
+                        )}
                 />
             }
         })
         .collect::<Html>();
+
+    let handle_mouse_down = {
+        let on_mouse_down = on_mouse_down.clone();
+        let node = node.clone();
+        Callback::from(move |_| on_mouse_down.emit(node.clone()))
+    };
+    let handle_mouse_up = {
+        let on_mouse_up = on_mouse_up.clone();
+        let node = node.clone();
+        Callback::from(move |_| on_mouse_up.emit(node.clone()))
+    };
+    let handle_click = {
+        let on_click = on_click.clone();
+        let node = node.clone();
+        Callback::from(move |_| on_click.emit(node.clone()))
+    };
 
     let mut bg_color = node.color.clone();
     bg_color.set_lightness(25.);
     bg_color.set_saturation(50.);
     html! {
         <div
-            onmousedown={on_mouse_down}
-            onmouseup={on_mouse_up}
-            onclick={on_click}
+            key={node.id}
+            onmousedown={handle_mouse_down}
+            onmouseup={handle_mouse_up}
+            onclick={handle_click}
             style={format!("width: {width}px; height: {height}px; left: {left}px; top: {top}px; border-color: {border_color}; background: {background};",
                 width = NODE_WIDTH,
                 height = NODE_HEIGHT,
@@ -278,9 +299,9 @@ pub struct RenderNodesProps {}
 
 #[styled_component(RenderNodes)]
 pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
-    log::info!("render_nodes");
+    // log::info!("render_nodes");
     let container_ref = use_node_ref();
-    let nodes_store = use_reducer_eq(NodesState::default);
+    let nodes_store = use_reducer(NodesState::default);
 
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
@@ -306,45 +327,41 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
         })
     };
 
-    let render_nodes = nodes_store.nodes
-        .iter()
-        .map(|node| {
-            let node = node.clone();
-
-            let on_node_mouse_down = {
-                let nodes_store = nodes_store.clone();
-                Callback::from(move |_| {
-                    nodes_store.dispatch(NodesAction::Activate(node.id))
-                })
-            };
-            let on_node_mouse_up = {
-                let nodes_store = nodes_store.clone();
-                Callback::from(move |_| {
-                    nodes_store.dispatch(NodesAction::Deactivate(node.id))
-                })
-            };
-            let on_node_click = {
-                let node = node.clone();
-                let nodes_store  = nodes_store.clone();
-                Callback::from( move |_| {
-                    // if node.is_active {
-                    //     nodes_store.dispatch(NodesAction::Deactivate(node.id));
-                    // } else {
-                    //     nodes_store.dispatch(NodesAction::Activate(node.id));
-                    // }
-                })
-            };
-
-            html! {
-                <RenderSingleNode 
-                    node={node} 
-                    on_mouse_down={on_node_mouse_down}
-                    on_mouse_up={on_node_mouse_up}
-                    on_click={on_node_click}
-                />
-            }
+    let on_node_mouse_down = {
+        let nodes_store = nodes_store.clone();
+        Callback::from(move |node: Node| nodes_store.dispatch(NodesAction::Activate(node.id)))
+    };
+    let on_node_mouse_up = {
+        let nodes_store = nodes_store.clone();
+        Callback::from(move |node: Node| nodes_store.dispatch(NodesAction::Deactivate(node.id)))
+    };
+    let on_node_click = {
+        let nodes_store = nodes_store.clone();
+        Callback::from(move |node: Node| {
+            // if node.is_active {
+            //     nodes_store.dispatch(NodesAction::Deactivate(node.id));
+            // } else {
+            //     nodes_store.dispatch(NodesAction::Activate(node.id));
+            // }
         })
-        .collect::<Html>();
+    };
+
+    let render_nodes = {
+        nodes_store
+            .nodes
+            .iter()
+            .map(|node| {
+                html! {
+                    <RenderSingleNode
+                        node={node.clone()}
+                        on_mouse_down={on_node_mouse_down.clone()}
+                        on_mouse_up={on_node_mouse_up.clone()}
+                        on_click={on_node_click.clone()}
+                    />
+                }
+            })
+            .collect::<Html>()
+    };
 
     html! {
         <div
