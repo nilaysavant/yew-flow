@@ -162,7 +162,7 @@ pub struct RenderSingleNodeProps {
     on_click: Callback<Node>,
 }
 
-#[styled_component(RenderSingleNode)]
+#[function_component(RenderSingleNode)]
 pub fn render_single_node(
     RenderSingleNodeProps {
         node,
@@ -297,7 +297,7 @@ pub fn render_single_node(
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderNodesProps {}
 
-#[styled_component(RenderNodes)]
+#[function_component(RenderNodes)]
 pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
     // log::info!("render_nodes");
     let container_ref = use_node_ref();
