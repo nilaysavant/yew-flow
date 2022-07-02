@@ -221,6 +221,9 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
             <div ref={container_ref} class={css!("color: #e0e0e0; background: #171717; border: 2px solid #949494; border-radius: 5px; width: 600px; height: 400px; position: relative; font-size: 12px; margin: 50px;")} onmousemove={on_container_mouse_move}>
                 {render_nodes}
             </div>
+            <div class={classes!("bg-red-600")}>
+                {"aa"}
+            </div>
         </>
     }
 }
