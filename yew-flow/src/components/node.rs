@@ -207,18 +207,25 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
                         background = bg_color.to_css_string(),
                     )}
                     class={classes!(
+                        "absolute",
+                        "border-2",
+                        "rounded-lg", 
+                        "flex", 
+                    )}
+                >
+                    <div class={classes!(
+                        "w-full",
                         "flex", 
                         "items-center", 
                         "justify-center", 
-                        "rounded-lg", 
-                        "select-none", 
-                        "absolute",
-                        "border-2"
+                        "select-none",
+                        "relative",
                     )}
-                >
-                    {format!("{}", node.title)}
-                    <br />
-                    {format!("({},{})", node.x, node.y)}
+                    >
+                        {format!("{}", node.title)}
+                        <br />
+                        {format!("({},{})", node.x, node.y)}
+                    </div>
                 </div>
             }
         })
