@@ -50,8 +50,8 @@ impl Default for NodesState {
                     Node {
                         id,
                         title: format!("Node {}", id),
-                        x: (400 / 4 * i) as u64,
-                        y: (400 / 5 * j) as u64,
+                        x: ((NODE_WIDTH as usize + 10) * i) as u64,
+                        y: ((NODE_HEIGHT as usize + 10) * j) as u64,
                         color,
                         is_active: false,
                     }
@@ -198,14 +198,24 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
                     onmousedown={on_node_mouse_down}
                     onmouseup={on_node_mouse_up}
                     // onclick={on_node_click}
-                    style={format!("display: flex; align-items: center; justify-content: center; border-radius: 50px; user-select: none; width: {width}px; height: {height}px; position: absolute; left: {left}px; top: {top}px; border: 3px solid {border_color}; background: {background};", 
+                    style={format!("width: {width}px; height: {height}px; left: {left}px; top: {top}px; border-color: {border_color}; background: {background};", 
                         width = NODE_WIDTH,
                         height = NODE_HEIGHT,
                         left = node.x,
                         top = node.y,
                         border_color = node.color.to_css_string(),
                         background = bg_color.to_css_string(),
-                    )}>
+                    )}
+                    class={classes!(
+                        "flex", 
+                        "items-center", 
+                        "justify-center", 
+                        "rounded-lg", 
+                        "select-none", 
+                        "absolute",
+                        "border-2"
+                    )}
+                >
                     {format!("{}", node.title)}
                     <br />
                     {format!("({},{})", node.x, node.y)}
@@ -215,9 +225,9 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
         .collect::<Html>();
 
     html! {
-        <div 
+        <div
             class={classes!(
-                "flex", 
+                "flex",
                 "flex-col",
                 "min-h-0",
                 "p-4")}
@@ -229,7 +239,7 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
                     "bg-neutral-800",
                     "rounded-sm",
                     "border-neutral-400",
-                    "border-4",
+                    "border-2",
                     "relative",
                 )}
                 style={format!("width: 100%; height: 400px;")}
