@@ -149,8 +149,8 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
             container_dimensions.height = container.offset_height();
         }
         Callback::from(move |e: MouseEvent| {
-            let x = (e.page_x() - container_dimensions.offset_left - 40) as u64;
-            let y = (e.page_y() - container_dimensions.offset_top - 25) as u64;
+            let x = (e.page_x() - container_dimensions.offset_left - NODE_WIDTH / 2) as u64;
+            let y = (e.page_y() - container_dimensions.offset_top - NODE_HEIGHT / 2) as u64;
             nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd { x, y }))
         })
     };
