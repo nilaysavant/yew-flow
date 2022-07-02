@@ -215,15 +215,28 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
         .collect::<Html>();
 
     html! {
-        <>
-            // <button onclick={on_step_btn_click.clone()}>{"increment"}</button>
-            // <p>{format!("step: {} ", *step)}</p>
-            <div ref={container_ref} class={css!("color: #e0e0e0; background: #171717; border: 2px solid #949494; border-radius: 5px; width: 600px; height: 400px; position: relative; font-size: 12px; margin: 50px;")} onmousemove={on_container_mouse_move}>
+        <div 
+            class={classes!(
+                "flex", 
+                "flex-col",
+                "min-h-0",
+                "p-4")}
+        >
+            <div
+                ref={container_ref}
+                class={classes!(
+                    "text-neutral-50",
+                    "bg-neutral-800",
+                    "rounded-sm",
+                    "border-neutral-400",
+                    "border-4",
+                    "relative",
+                )}
+                style={format!("width: 100%; height: 400px;")}
+                onmousemove={on_container_mouse_move}
+            >
                 {render_nodes}
             </div>
-            <div class={classes!("bg-red-600")}>
-                {"aa"}
-            </div>
-        </>
+        </div>
     }
 }
