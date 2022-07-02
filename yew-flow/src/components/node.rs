@@ -214,6 +214,35 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
             //     })
             // };
 
+            let render_inputs = node.inputs.iter().map(|input| {
+                html!{
+                    <span class={classes!(
+                        "bg-neutral-600",
+                        "border-2",
+                        "border-neutral-100",
+                        "w-3",
+                        "h-3",
+                        "rounded-full",
+                        "my-1",
+                        )}
+                    />
+                }
+            }).collect::<Html>();
+            let render_outputs = node.outputs.iter().map(|input| {
+                html!{
+                    <span class={classes!(
+                        "bg-neutral-600",
+                        "border-2",
+                        "border-neutral-100",
+                        "w-3",
+                        "h-3",
+                        "rounded-full",
+                        "my-1",
+                        )}
+                    />
+                }
+            }).collect::<Html>();
+
             let mut bg_color = node.color.clone();
             bg_color.set_lightness(25.);
             bg_color.set_saturation(50.);
@@ -246,6 +275,7 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
                         "relative",
                     )}
                     >
+                        // inputs
                         <span class={classes!(
                             "absolute",
                             "flex",
@@ -255,16 +285,19 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
                             "-left-2",
                             )}
                         >
-                            <span class={classes!(
-                                "bg-neutral-600",
-                                "border-2",
-                                "border-neutral-100",
-                                "w-3",
-                                "h-3",
-                                "rounded-full",
-                                "my-1",
-                                )}
-                            />
+                           {render_inputs}
+                        </span>
+                        // outputs
+                        <span class={classes!(
+                            "absolute",
+                            "flex",
+                            "flex-col",
+                            "justify-center",
+                            "h-full",
+                            "-right-2",
+                            )}
+                        >
+                           {render_outputs}
                         </span>
                         {format!("{}", node.title)}
                         <br />
