@@ -5,7 +5,17 @@ use yew::prelude::*;
 
 use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
 
-#[derive(Clone, PartialEq, Properties)]
+#[derive(Clone, PartialEq, Debug)]
+pub struct NodeInput {
+    pub id: String,
+}
+
+#[derive(Clone, PartialEq, Debug)]
+pub struct NodeOutput {
+    pub id: String,
+}
+
+#[derive(Clone, PartialEq, Properties, Debug)]
 pub struct Node {
     pub id: usize,
     pub title: String,
@@ -13,6 +23,8 @@ pub struct Node {
     pub y: u64,
     pub color: Hsl,
     pub is_active: bool,
+    pub inputs: Vec<NodeInput>,
+    pub outputs: Vec<NodeOutput>,
 }
 
 pub struct MoveCmd {
@@ -54,6 +66,18 @@ impl Default for NodesState {
                         y: ((NODE_HEIGHT as usize + 10) * j) as u64,
                         color,
                         is_active: false,
+                        inputs: (0..3)
+                            .into_iter()
+                            .map(|input_id| NodeInput {
+                                id: format!("node:{} input:{}", id, input_id),
+                            })
+                            .collect(),
+                        outputs: (0..3)
+                            .into_iter()
+                            .map(|output_id| NodeOutput {
+                                id: format!("node:{} input:{}", id, output_id),
+                            })
+                            .collect(),
                     }
                 })
             })
@@ -222,6 +246,26 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
                         "relative",
                     )}
                     >
+                        <span class={classes!(
+                            "absolute",
+                            "flex",
+                            "flex-col",
+                            "justify-center",
+                            "h-full",
+                            "-left-2",
+                            )}
+                        >
+                            <span class={classes!(
+                                "bg-neutral-600",
+                                "border-2",
+                                "border-neutral-100",
+                                "w-3",
+                                "h-3",
+                                "rounded-full",
+                                "my-1",
+                                )}
+                            />
+                        </span>
                         {format!("{}", node.title)}
                         <br />
                         {format!("({},{})", node.x, node.y)}
