@@ -10,7 +10,7 @@ struct TodoItem {
 #[derive(Clone, Properties, PartialEq)]
 struct RenderTodoItemProps {
     todo_item: TodoItem,
-    on_click: Callback<TodoItem>,
+    on_click: std::rc::Rc<Callback<TodoItem>>,
 }
 
 #[function_component(RenderTodoItem)]
@@ -84,10 +84,11 @@ impl Reducible for State {
 fn app() -> Html {
     let store = use_reducer(State::default);
 
-    let handle_todo_click = {
+    let handle_todo_click = use_ref(|| {
         let store = store.clone();
-        Callback::from(move |todo: TodoItem| store.dispatch(StateAction::ToggleTodo(todo.id)))
-    };
+        let dispatcher = store.dispatcher();
+        Callback::from(move |todo: TodoItem| dispatcher.dispatch(StateAction::ToggleTodo(todo.id)))
+    });
 
     let render_todos = store
         .todos
