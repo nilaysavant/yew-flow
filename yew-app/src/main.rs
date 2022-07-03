@@ -22,6 +22,7 @@ fn render_todo_item(
         on_click,
     }: &RenderTodoItemProps,
 ) -> Html {
+    log::info!("render_todo_item: {}", todo_item.id);
     let TodoItem { id, value, checked } = todo_item;
 
     let handle_click = {
@@ -95,7 +96,7 @@ fn app() -> Html {
         .iter()
         .map(|todo| {
             html! {
-                <RenderTodoItem todo_item={todo.clone()} on_click={handle_todo_click.clone()} />
+                <RenderTodoItem key={todo.id} todo_item={todo.clone()} on_click={handle_todo_click.clone()} />
             }
         })
         .collect::<Html>();
