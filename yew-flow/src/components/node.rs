@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use colorsys::Hsl;
 use stylist::yew::styled_component;
 use web_sys::HtmlElement;
@@ -53,11 +55,13 @@ pub struct NodesState {
 impl Default for NodesState {
     fn default() -> Self {
         // Generate a grid of nodes
+        let auto_incr_id = std::rc::Rc::new(RefCell::new(0..));
         let nodes = (0..5)
             .into_iter()
-            .map(|i| {
+            .map(move |i| {
+                let auto_incr_id= auto_incr_id.clone();
                 (0..5).into_iter().map(move |j| {
-                    let id = i * 10 + j;
+                    let id = auto_incr_id.clone().borrow_mut().next().unwrap();
                     let mut color = Hsl::new(0., 100., 50., Some(0.8));
                     color.set_hue(360. / 15. * ((i * j) as f64));
                     Node {
