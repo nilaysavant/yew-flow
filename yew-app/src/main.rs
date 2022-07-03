@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use yew::prelude::*;
 
 #[derive(Clone, PartialEq)]
