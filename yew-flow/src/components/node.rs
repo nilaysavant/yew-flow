@@ -157,9 +157,9 @@ impl Default for ContainerDimensions {
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderSingleNodeProps {
     node: Node,
-    on_mouse_down: Callback<Node>,
-    on_mouse_up: Callback<Node>,
-    on_click: Callback<Node>,
+    on_mouse_down: std::rc::Rc<Callback<Node>>,
+    on_mouse_up: std::rc::Rc<Callback<Node>>,
+    on_click: std::rc::Rc<Callback<Node>>,
 }
 
 #[function_component(RenderSingleNode)]
@@ -302,6 +302,7 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
     // log::info!("render_nodes");
     let container_ref = use_node_ref();
     let nodes_store = use_reducer(NodesState::default);
+    let dispatcher = nodes_store.dispatcher();
 
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
@@ -327,16 +328,16 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
         })
     };
 
-    let on_node_mouse_down = {
-        let nodes_store = nodes_store.clone();
-        Callback::from(move |node: Node| nodes_store.dispatch(NodesAction::Activate(node.id)))
-    };
-    let on_node_mouse_up = {
-        let nodes_store = nodes_store.clone();
-        Callback::from(move |node: Node| nodes_store.dispatch(NodesAction::Deactivate(node.id)))
-    };
-    let on_node_click = {
-        let nodes_store = nodes_store.clone();
+    let on_node_mouse_down = use_ref(|| {
+        let dispatcher = dispatcher.clone();
+        Callback::from(move |node: Node| dispatcher.dispatch(NodesAction::Activate(node.id)))
+    });
+    let on_node_mouse_up = use_ref(|| {
+        let dispatcher = dispatcher.clone();
+        Callback::from(move |node: Node| dispatcher.dispatch(NodesAction::Deactivate(node.id)))
+    });
+    let on_node_click = use_ref(|| {
+        let dispatcher = dispatcher.clone();
         Callback::from(move |node: Node| {
             // if node.is_active {
             //     nodes_store.dispatch(NodesAction::Deactivate(node.id));
@@ -344,7 +345,7 @@ pub fn render_nodes(RenderNodesProps {}: &RenderNodesProps) -> Html {
             //     nodes_store.dispatch(NodesAction::Activate(node.id));
             // }
         })
-    };
+    });
 
     let render_nodes = {
         nodes_store
