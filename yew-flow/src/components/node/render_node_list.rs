@@ -122,6 +122,14 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                 onmousemove={on_container_mouse_move}
             >
                 {render_nodes}
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <path 
+                        d="M 100 0 C 200 0, 0 100, 100 100" 
+                        stroke="blue"
+                        stroke-width="3px"
+                        fill="transparent"
+                    />
+                </svg>
             </div>
         </div>
     }

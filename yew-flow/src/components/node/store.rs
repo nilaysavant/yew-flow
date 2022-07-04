@@ -34,11 +34,11 @@ impl Default for NodesState {
     fn default() -> Self {
         // Generate a grid of nodes
         let auto_incr_id = Rc::new(RefCell::new(0..));
-        let nodes = (0..5)
+        let nodes = (0..1)
             .into_iter()
             .map(move |i| {
                 let auto_incr_id = auto_incr_id.clone();
-                (0..5).into_iter().map(move |j| {
+                (0..2).into_iter().map(move |j| {
                     let id = auto_incr_id.clone().borrow_mut().next().unwrap();
                     let mut color = Hsl::new(0., 100., 50., Some(0.8));
                     color.set_hue(360. / 15. * ((i * j) as f64));
