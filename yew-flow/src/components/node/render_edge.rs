@@ -45,7 +45,7 @@ pub fn render_edge(RenderEdgeProps { edge }: &RenderEdgeProps) -> Html {
                 y2=y2,
             )}
             stroke="blue"
-            stroke-width="3px"
+            stroke-width="4px"
             fill="transparent"
         />
     }
