@@ -10,7 +10,8 @@ fn app() -> Html {
             <svg width="190" height="160" xmlns="http://www.w3.org/2000/svg">
                 <path 
                     d="M 100 0 C 200 0, 0 100, 100 100" 
-                    stroke="black" 
+                    stroke="blue"
+                    stroke-width="3px"
                     fill="transparent"
                 />
             </svg>
