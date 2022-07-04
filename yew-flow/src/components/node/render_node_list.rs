@@ -1,10 +1,14 @@
+use std::{cell::RefCell, rc::Rc};
+
+use colorsys::Hsl;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 
 use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
 
 use super::{
-    models::Node,
+    models::{Edge, Node},
+    render_edge::RenderEdge,
     render_node::RenderNode,
     store::{MoveActiveCmd, NodesAction, NodesState},
 };
@@ -54,11 +58,9 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         Callback::from(move |e: MouseEvent| {
             if container_dimensions.width > 0 && container_dimensions.height > 0 {
                 let x = (e.page_x() - container_dimensions.offset_left - NODE_WIDTH / 2)
-                    .clamp(0, container_dimensions.width - NODE_WIDTH)
-                    as u64;
+                    .clamp(0, container_dimensions.width - NODE_WIDTH);
                 let y = (e.page_y() - container_dimensions.offset_top - NODE_HEIGHT / 2)
-                    .clamp(0, container_dimensions.height - NODE_HEIGHT)
-                    as u64;
+                    .clamp(0, container_dimensions.height - NODE_HEIGHT);
                 nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd { x, y }))
             }
         })
@@ -100,6 +102,54 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             .collect::<Html>()
     };
 
+    let render_edges = {
+        // let edges = vec![
+        //     Edge {
+        //         id: 0,
+        //         color: Hsl::new(0., 100., 100., Some(0.8)),
+        //         is_active: false,
+        //         x1: 10,
+        //         y1: 10,
+        //         x2: 100,
+        //         y2: 100,
+        //     },
+        //     Edge {
+        //         id: 0,
+        //         color: Hsl::new(0., 100., 100., Some(0.8)),
+        //         is_active: false,
+        //         x1: 50,
+        //         y1: 50,
+        //         x2: 200,
+        //         y2: 200,
+        //     },
+        // ];
+        let auto_id = Rc::new(RefCell::new(0..));
+        log::info!("auto_id: {:?}", auto_id);
+        nodes_store
+            .nodes
+            .clone()
+            .iter()
+            .zip(nodes_store.nodes.clone().iter().skip(1).step_by(2))
+            .map(|(node1, node2)| {
+                let edge = Edge {
+                    id: auto_id.clone().borrow_mut().next().unwrap(),
+                    color: Hsl::new(0., 100., 100., Some(0.8)),
+                    is_active: false,
+                    x1: node1.x,
+                    y1: node1.y,
+                    x2: node2.x,
+                    y2: node2.y,
+                };
+                log::info!("edge: {:?}", edge);
+                html! {
+                    <RenderEdge
+                        edge={edge.clone()}
+                    />
+                }
+            })
+            .collect::<Html>()
+    };
+
     html! {
         <div
             class={classes!(
@@ -123,12 +173,13 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             >
                 {render_nodes}
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <path 
-                        d="M 100 0 C 200 0, 0 100, 100 100" 
-                        stroke="blue"
-                        stroke-width="3px"
-                        fill="transparent"
-                    />
+                    // <path
+                    //     d="M 100 0 C 200 0, 0 100, 100 100"
+                    //     stroke="blue"
+                    //     stroke-width="3px"
+                    //     fill="transparent"
+                    // />
+                    {render_edges}
                 </svg>
             </div>
         </div>

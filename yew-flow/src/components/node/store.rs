@@ -9,13 +9,13 @@ use super::models::{Node, NodeInput, NodeOutput};
 
 pub struct MoveCmd {
     pub id: usize,
-    pub x: u64,
-    pub y: u64,
+    pub x: i32,
+    pub y: i32,
 }
 
 pub struct MoveActiveCmd {
-    pub x: u64,
-    pub y: u64,
+    pub x: i32,
+    pub y: i32,
 }
 
 pub enum NodesAction {
@@ -45,8 +45,8 @@ impl Default for NodesState {
                     Node {
                         id,
                         title: format!("Node {}", id),
-                        x: ((NODE_WIDTH as usize + 10) * i) as u64,
-                        y: ((NODE_HEIGHT as usize + 10) * j) as u64,
+                        x: ((NODE_WIDTH as usize + 10) * i) as i32,
+                        y: ((NODE_HEIGHT as usize + 10) * j) as i32,
                         color,
                         is_active: false,
                         inputs: (0..3)
