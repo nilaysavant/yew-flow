@@ -129,8 +129,9 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             .nodes
             .clone()
             .iter()
-            .zip(nodes_store.nodes.clone().iter().skip(1).step_by(2))
+            .zip(nodes_store.nodes.clone().iter().skip(1))
             .map(|(node1, node2)| {
+                log::info!("node1: {}, node2: {}", node1.id, node2.id);
                 let edge = Edge {
                     id: auto_id.clone().borrow_mut().next().unwrap(),
                     color: Hsl::new(0., 100., 100., Some(0.8)),
@@ -140,7 +141,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     x2: node2.x,
                     y2: node2.y,
                 };
-                log::info!("edge: {:?}", edge);
+                // log::info!("edge: {:?}", edge);
                 html! {
                     <RenderEdge
                         edge={edge.clone()}

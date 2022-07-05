@@ -38,7 +38,7 @@ impl Default for NodesState {
             .into_iter()
             .map(move |i| {
                 let auto_incr_id = auto_incr_id.clone();
-                (0..2).into_iter().map(move |j| {
+                (0..6).into_iter().map(move |j| {
                     let id = auto_incr_id.clone().borrow_mut().next().unwrap();
                     let mut color = Hsl::new(0., 100., 50., Some(0.8));
                     color.set_hue(360. / 15. * ((i * j) as f64));
