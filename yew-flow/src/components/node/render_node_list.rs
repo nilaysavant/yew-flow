@@ -131,7 +131,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             .iter()
             .zip(nodes_store.nodes.clone().iter().skip(1))
             .map(|(node1, node2)| {
-                log::info!("node1: {}, node2: {}", node1.id, node2.id);
+                // log::info!("node1: {}, node2: {}", node1.id, node2.id);
                 let edge = Edge {
                     id: auto_id.clone().borrow_mut().next().unwrap(),
                     color: Hsl::new(0., 100., 100., Some(0.8)),
