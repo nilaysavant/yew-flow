@@ -25,8 +25,8 @@ pub struct ActiveNodeMoveCmd {
 pub enum WorkspaceAction {
     NodeMove(NodeMoveCmd),
     ActiveNodeMove(ActiveNodeMoveCmd),
-    Activate(usize),
-    Deactivate(usize),
+    NodeActivate(usize),
+    NodeDeactivate(usize),
 }
 
 /// # Yew Flow Workspace Store
@@ -103,14 +103,14 @@ impl Reducible for WorkspaceStore {
                 }
                 nodes
             }
-            WorkspaceAction::Activate(id) => {
+            WorkspaceAction::NodeActivate(id) => {
                 let node = nodes.iter_mut().find(|a| a.id == id);
                 if let Some(node) = node {
                     node.is_active = true
                 }
                 nodes
             }
-            WorkspaceAction::Deactivate(id) => {
+            WorkspaceAction::NodeDeactivate(id) => {
                 let node = nodes.iter_mut().find(|a| a.id == id);
                 if let Some(node) = node {
                     node.is_active = false
