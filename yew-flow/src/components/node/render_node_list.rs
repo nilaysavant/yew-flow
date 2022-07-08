@@ -96,10 +96,8 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     .map_or((0, 0), |elm| {
                         let rect = elm.get_bounding_client_rect();
                         // Convert from abs pos to relative wrt
-                        let x = viewport
-                            .relative_x_pos_from_abs(rect.x() as i32, Some(rect.width() as i32));
-                        let y = viewport
-                            .relative_y_pos_from_abs(rect.y() as i32, Some(rect.height() as i32));
+                        let x = viewport.relative_x_pos_from_abs(rect.x() as i32, None);
+                        let y = viewport.relative_y_pos_from_abs(rect.y() as i32, None) + 4; // minor adjustments for precision
                         (x, y)
                     });
                 // Get x and y for Node2 input
@@ -109,10 +107,8 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     .map_or((0, 0), |elm| {
                         let rect = elm.get_bounding_client_rect();
                         // Convert from abs pos to relative wrt
-                        let x = viewport
-                            .relative_x_pos_from_abs(rect.x() as i32, Some(rect.width() as i32));
-                        let y = viewport
-                            .relative_y_pos_from_abs(rect.y() as i32, Some(rect.height() as i32));
+                        let x = viewport.relative_x_pos_from_abs(rect.x() as i32, None);
+                        let y = viewport.relative_y_pos_from_abs(rect.y() as i32, None) + 4; // minor adjustments for precision
                         (x, y)
                     });
                 let edge = Edge {
@@ -124,7 +120,6 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     x2,
                     y2,
                 };
-                log::info!("edge: {:?}", edge);
                 html! {
                     <RenderEdge
                         edge={edge.clone()}
