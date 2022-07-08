@@ -4,11 +4,13 @@ use yew::prelude::*;
 #[derive(Clone, PartialEq, Debug)]
 pub struct NodeInput {
     pub id: String,
+    pub reference: NodeRef,
 }
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct NodeOutput {
     pub id: String,
+    pub reference: NodeRef,
 }
 
 #[derive(Clone, PartialEq, Properties, Debug)]

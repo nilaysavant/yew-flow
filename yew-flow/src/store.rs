@@ -65,12 +65,14 @@ impl Default for WorkspaceStore {
                             .into_iter()
                             .map(|input_id| NodeInput {
                                 id: format!("node:{} input:{}", id, input_id),
+                                reference: NodeRef::default(),
                             })
                             .collect(),
                         outputs: (0..3)
                             .into_iter()
                             .map(|output_id| NodeOutput {
                                 id: format!("node:{} input:{}", id, output_id),
+                                reference: NodeRef::default(),
                             })
                             .collect(),
                     }

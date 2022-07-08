@@ -22,7 +22,6 @@ pub fn render_node(
         on_click,
     }: &RenderNodeProps,
 ) -> Html {
-    log::info!("render_single_node: {}", node.id);
     let render_inputs = node
         .inputs
         .iter()
@@ -30,6 +29,7 @@ pub fn render_node(
             html! {
                 <span
                     key={input.id.clone()}
+                    ref={input.reference.clone()}
                     class={classes!(
                         "bg-neutral-600",
                         "border-2",
@@ -50,6 +50,7 @@ pub fn render_node(
             html! {
                 <span
                     key={output.id.clone()}
+                    ref={output.reference.clone()}
                     class={classes!(
                         "bg-neutral-600",
                         "border-2",
