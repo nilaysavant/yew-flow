@@ -23,9 +23,13 @@ pub struct ActiveNodeMoveCmd {
 ///
 /// Actions to be dispatched to `WorkspaceStore`.
 pub enum WorkspaceAction {
+    /// When node needs to be moved.
     NodeMove(NodeMoveCmd),
+    /// When active node needs to be moved.
     ActiveNodeMove(ActiveNodeMoveCmd),
+    /// When node needs to be activated.
     NodeActivate(usize),
+    /// When node needs to be deactivated.
     NodeDeactivate(usize),
 }
 
