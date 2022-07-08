@@ -6,7 +6,7 @@ use crate::components::node::render_node_list::RenderNodeList;
 pub struct WorkspaceProps;
 
 /// # Yew Flow Workspace
-/// 
+///
 /// `yew-flow` canvas/work area where nodes
 /// are rendered.
 #[function_component(Workspace)]

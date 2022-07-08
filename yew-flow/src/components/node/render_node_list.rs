@@ -5,13 +5,12 @@ use web_sys::HtmlElement;
 use yew::prelude::*;
 
 use crate::{
-    components::edge::render_edge::RenderEdge,
+    components::edge::{model::Edge, render_edge::RenderEdge},
     constants::{NODE_HEIGHT, NODE_WIDTH},
-    models::{Edge, Node},
     store::{ActiveNodeMoveCmd, WorkspaceAction, WorkspaceStore},
 };
 
-use super::render_node::RenderNode;
+use super::{model::Node, render_node::RenderNode};
 
 /// Used to store container dimensions like
 /// **offsets**, **width**, **height** etc
@@ -68,11 +67,15 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
 
     let on_node_mouse_down = use_ref(|| {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |node: Node| dispatcher.dispatch(WorkspaceAction::NodeActivate(node.id)))
+        Callback::from(move |node: Node| {
+            dispatcher.dispatch(WorkspaceAction::NodeActivate(node.id))
+        })
     });
     let on_node_mouse_up = use_ref(|| {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |node: Node| dispatcher.dispatch(WorkspaceAction::NodeDeactivate(node.id)))
+        Callback::from(move |node: Node| {
+            dispatcher.dispatch(WorkspaceAction::NodeDeactivate(node.id))
+        })
     });
     let on_node_click = use_ref(|| {
         let dispatcher = dispatcher.clone();

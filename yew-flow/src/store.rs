@@ -4,8 +4,11 @@ use colorsys::Hsl;
 use yew::prelude::*;
 
 use crate::{
+    components::{
+        edge::model::Edge,
+        node::model::{Node, NodeInput, NodeOutput},
+    },
     constants::{NODE_HEIGHT, NODE_WIDTH},
-    models::{Edge, Node, NodeInput, NodeOutput},
 };
 
 pub struct NodeMoveCmd {
