@@ -3,8 +3,10 @@ use std::{cell::RefCell, rc::Rc};
 use colorsys::Hsl;
 use yew::prelude::*;
 
-use crate::{constants::{NODE_HEIGHT, NODE_WIDTH}, models::{Node, NodeInput, NodeOutput}};
-
+use crate::{
+    constants::{NODE_HEIGHT, NODE_WIDTH},
+    models::{Edge, Node, NodeInput, NodeOutput},
+};
 
 pub struct MoveCmd {
     pub id: usize,
@@ -18,7 +20,7 @@ pub struct MoveActiveCmd {
 }
 
 /// # Yew Flow Workspace Action
-/// 
+///
 /// Actions to be dispatched to `WorkspaceStore`.
 pub enum WorkspaceAction {
     Move(MoveCmd),
@@ -28,11 +30,12 @@ pub enum WorkspaceAction {
 }
 
 /// # Yew Flow Workspace Store
-/// 
+///
 /// Main state/store for `yew-flow`.
 #[derive(Clone, PartialEq, Debug)]
 pub struct WorkspaceStore {
     pub nodes: Vec<Node>,
+    pub edges: Vec<Edge>,
 }
 
 impl Default for WorkspaceStore {
@@ -71,7 +74,10 @@ impl Default for WorkspaceStore {
             })
             .flatten()
             .collect::<Vec<Node>>();
-        Self { nodes }
+        Self {
+            nodes,
+            edges: vec![],
+        }
     }
 }
 
@@ -115,6 +121,7 @@ impl Reducible for WorkspaceStore {
 
         Self {
             nodes: updated_nodes,
+            edges: vec![],
         }
         .into()
     }
