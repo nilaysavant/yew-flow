@@ -8,7 +8,7 @@ use crate::{
     components::edge::render_edge::RenderEdge,
     constants::{NODE_HEIGHT, NODE_WIDTH},
     models::{Edge, Node},
-    store::{MoveActiveCmd, WorkspaceAction, WorkspaceStore},
+    store::{ActiveNodeMoveCmd, WorkspaceAction, WorkspaceStore},
 };
 
 use super::render_node::RenderNode;
@@ -61,7 +61,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     .clamp(0, container_dimensions.width - NODE_WIDTH);
                 let y = (e.page_y() - container_dimensions.offset_top - NODE_HEIGHT / 2)
                     .clamp(0, container_dimensions.height - NODE_HEIGHT);
-                nodes_store.dispatch(WorkspaceAction::MoveActive(MoveActiveCmd { x, y }))
+                nodes_store.dispatch(WorkspaceAction::ActiveNodeMove(ActiveNodeMoveCmd { x, y }))
             }
         })
     };

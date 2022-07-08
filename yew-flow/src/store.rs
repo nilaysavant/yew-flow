@@ -8,13 +8,13 @@ use crate::{
     models::{Edge, Node, NodeInput, NodeOutput},
 };
 
-pub struct MoveCmd {
+pub struct NodeMoveCmd {
     pub id: usize,
     pub x: i32,
     pub y: i32,
 }
 
-pub struct MoveActiveCmd {
+pub struct ActiveNodeMoveCmd {
     pub x: i32,
     pub y: i32,
 }
@@ -23,8 +23,8 @@ pub struct MoveActiveCmd {
 ///
 /// Actions to be dispatched to `WorkspaceStore`.
 pub enum WorkspaceAction {
-    Move(MoveCmd),
-    MoveActive(MoveActiveCmd),
+    NodeMove(NodeMoveCmd),
+    ActiveNodeMove(ActiveNodeMoveCmd),
     Activate(usize),
     Deactivate(usize),
 }
@@ -87,7 +87,7 @@ impl Reducible for WorkspaceStore {
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
         let mut nodes = self.nodes.clone();
         let updated_nodes = match action {
-            WorkspaceAction::Move(MoveCmd { id, x, y }) => {
+            WorkspaceAction::NodeMove(NodeMoveCmd { id, x, y }) => {
                 let node = nodes.iter_mut().find(|a| a.id == id);
                 if let Some(node) = node {
                     node.x = x;
@@ -95,7 +95,7 @@ impl Reducible for WorkspaceStore {
                 }
                 nodes
             }
-            WorkspaceAction::MoveActive(MoveActiveCmd { x, y }) => {
+            WorkspaceAction::ActiveNodeMove(ActiveNodeMoveCmd { x, y }) => {
                 let active_node = nodes.iter_mut().find(|n| n.is_active);
                 if let Some(active_node) = active_node {
                     active_node.x = x;
