@@ -1,37 +1,18 @@
 use std::{cell::RefCell, rc::Rc};
 
 use colorsys::Hsl;
-use web_sys::HtmlElement;
 use yew::prelude::*;
 
 use crate::{
-    components::edge::{models::Edge, render_edge::RenderEdge},
+    components::{
+        edge::{models::Edge, render_edge::RenderEdge},
+        viewport::models::Viewport,
+    },
     constants::{NODE_HEIGHT, NODE_WIDTH},
     store::{ActiveNodeMoveCmd, WorkspaceAction, WorkspaceStore},
 };
 
 use super::{models::Node, render_node::RenderNode};
-
-/// Used to store container dimensions like
-/// **offsets**, **width**, **height** etc
-#[derive(Debug, Clone, Copy)]
-struct ContainerDimensions {
-    offset_left: i32,
-    offset_top: i32,
-    width: i32,
-    height: i32,
-}
-
-impl Default for ContainerDimensions {
-    fn default() -> Self {
-        Self {
-            offset_left: Default::default(),
-            offset_top: Default::default(),
-            width: Default::default(),
-            height: Default::default(),
-        }
-    }
-}
 
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderNodeListProps {}
@@ -46,20 +27,11 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
         let nodes_store = nodes_store.clone();
-        let mut container_dimensions = ContainerDimensions::default();
-        if let Some(container) = container_ref.cast::<HtmlElement>() {
-            // set proper container offset values
-            container_dimensions.offset_left = container.offset_left();
-            container_dimensions.offset_top = container.offset_top();
-            container_dimensions.width = container.client_width();
-            container_dimensions.height = container.client_height();
-        }
+        let viewport = Viewport::new(container_ref);
         Callback::from(move |e: MouseEvent| {
-            if container_dimensions.width > 0 && container_dimensions.height > 0 {
-                let x = (e.page_x() - container_dimensions.offset_left - NODE_WIDTH / 2)
-                    .clamp(0, container_dimensions.width - NODE_WIDTH);
-                let y = (e.page_y() - container_dimensions.offset_top - NODE_HEIGHT / 2)
-                    .clamp(0, container_dimensions.height - NODE_HEIGHT);
+            if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
+                let x = viewport.relative_x_pos_from_abs(e.page_x(), Some(NODE_WIDTH));
+                let y = viewport.relative_y_pos_from_abs(e.page_y(), Some(NODE_HEIGHT));
                 nodes_store.dispatch(WorkspaceAction::ActiveNodeMove(ActiveNodeMoveCmd { x, y }))
             }
         })
