@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
 
-use super::model::Edge;
+use super::models::Edge;
 
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderEdgeProps {

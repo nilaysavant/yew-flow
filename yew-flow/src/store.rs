@@ -5,8 +5,8 @@ use yew::prelude::*;
 
 use crate::{
     components::{
-        edge::model::Edge,
-        node::model::{Node, NodeInput, NodeOutput},
+        edge::models::Edge,
+        node::models::{Node, NodeInput, NodeOutput},
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
 };

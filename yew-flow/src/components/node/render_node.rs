@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
 
-use super::model::Node;
+use super::models::Node;
 
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderNodeProps {

@@ -5,12 +5,12 @@ use web_sys::HtmlElement;
 use yew::prelude::*;
 
 use crate::{
-    components::edge::{model::Edge, render_edge::RenderEdge},
+    components::edge::{models::Edge, render_edge::RenderEdge},
     constants::{NODE_HEIGHT, NODE_WIDTH},
     store::{ActiveNodeMoveCmd, WorkspaceAction, WorkspaceStore},
 };
 
-use super::{model::Node, render_node::RenderNode};
+use super::{models::Node, render_node::RenderNode};
 
 /// Used to store container dimensions like
 /// **offsets**, **width**, **height** etc
