@@ -1,6 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use colorsys::Hsl;
+use web_sys::{Element, HtmlElement};
 use yew::prelude::*;
 
 use crate::{
@@ -87,20 +88,40 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             .zip(nodes_store.nodes.clone().iter().skip(1))
             .map(|(node1, node2)| {
                 // log::info!("node1: {}, node2: {}", node1.id, node2.id);
-                let edge = Edge {
-                    id: auto_id.clone().borrow_mut().next().unwrap(),
-                    color: Hsl::new(0., 100., 100., Some(0.8)),
-                    is_active: false,
-                    x1: node1.x,
-                    y1: node1.y,
-                    x2: node2.x,
-                    y2: node2.y,
-                };
-                // log::info!("edge: {:?}", edge);
-                html! {
-                    <RenderEdge
-                        edge={edge.clone()}
-                    />
+                let (x1, y1) = node1.outputs[0]
+                    .reference
+                    .cast::<Element>()
+                    .map_or((0, 0), |elm| {
+                        let rect = elm.get_bounding_client_rect();
+                        (rect.x() as i32, rect.y() as i32)
+                    });
+                let (x2, y2) = node2.inputs[0]
+                    .reference
+                    .cast::<Element>()
+                    .map_or((0, 0), |elm| {
+                        let rect = elm.get_bounding_client_rect();
+                        (rect.x() as i32, rect.y() as i32)
+                    });
+
+                match node1.outputs[0].reference.cast::<HtmlElement>() {
+                    Some(_) => {
+                        let edge = Edge {
+                            id: auto_id.clone().borrow_mut().next().unwrap(),
+                            color: Hsl::new(0., 100., 100., Some(0.8)),
+                            is_active: false,
+                            x1,
+                            y1,
+                            x2,
+                            y2,
+                        };
+                        log::info!("edge: {:?}", edge);
+                        html! {
+                            <RenderEdge
+                                edge={edge.clone()}
+                            />
+                        }
+                    }
+                    None => html! {},
                 }
             })
             .collect::<Html>()
@@ -112,7 +133,9 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                 "flex",
                 "flex-col",
                 "min-h-0",
-                "p-4")}
+                "p-4",
+                "pt-10"
+            )}
         >
             <div
                 ref={container_ref}

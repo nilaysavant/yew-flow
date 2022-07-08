@@ -10,5 +10,5 @@ colorsys = "0.6"
 log = "0.4"
 stylist = { version = "0.10", features = ["yew_integration"]}
 wasm-logger = "0.2.0"
-web-sys = "0.3"
+web-sys = { version = "0.3", features = ["DomRect", "Element"] }
 yew = "0.19"
