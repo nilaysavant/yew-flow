@@ -78,26 +78,6 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     };
 
     let render_edges = {
-        // let edges = vec![
-        //     Edge {
-        //         id: 0,
-        //         color: Hsl::new(0., 100., 100., Some(0.8)),
-        //         is_active: false,
-        //         x1: 10,
-        //         y1: 10,
-        //         x2: 100,
-        //         y2: 100,
-        //     },
-        //     Edge {
-        //         id: 0,
-        //         color: Hsl::new(0., 100., 100., Some(0.8)),
-        //         is_active: false,
-        //         x1: 50,
-        //         y1: 50,
-        //         x2: 200,
-        //         y2: 200,
-        //     },
-        // ];
         let auto_id = Rc::new(RefCell::new(0..));
         log::info!("auto_id: {:?}", auto_id);
         nodes_store
