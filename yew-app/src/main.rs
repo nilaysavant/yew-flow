@@ -1,12 +1,12 @@
 use yew::prelude::*;
 
-use yew_flow::components::node::render_node_list::RenderNodeList;
+use yew_flow::Workspace;
 
 #[function_component(App)]
 fn app() -> Html {
     html! {
         <>
-            <RenderNodeList />
+            <Workspace />
         </>
     }
 }
