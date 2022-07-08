@@ -1,8 +1,9 @@
 use yew::prelude::*;
 
-use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
-
-use super::models::Edge;
+use crate::{
+    constants::{NODE_HEIGHT, NODE_WIDTH},
+    models::Edge,
+};
 
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderEdgeProps {
@@ -26,9 +27,9 @@ pub fn render_edge(RenderEdgeProps { edge }: &RenderEdgeProps) -> Html {
     let x2 = x2;
     let y2 = y2 + (NODE_HEIGHT) / 2;
 
-    let sx1 = x1 + (NODE_WIDTH/2);
+    let sx1 = x1 + (NODE_WIDTH / 2);
     let sy1 = y1;
-    let sx2 = (x2 - (NODE_WIDTH/2)).max(0);
+    let sx2 = (x2 - (NODE_WIDTH / 2)).max(0);
     let sy2 = y2;
 
     html! {

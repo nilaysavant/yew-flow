@@ -4,10 +4,12 @@ use colorsys::Hsl;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 
-use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
+use crate::{
+    constants::{NODE_HEIGHT, NODE_WIDTH},
+    models::{Edge, Node},
+};
 
 use super::{
-    models::{Edge, Node},
     render_edge::RenderEdge,
     render_node::RenderNode,
     store::{MoveActiveCmd, NodesAction, NodesState},

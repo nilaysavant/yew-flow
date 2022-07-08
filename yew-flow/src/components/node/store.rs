@@ -3,9 +3,8 @@ use std::{cell::RefCell, rc::Rc};
 use colorsys::Hsl;
 use yew::prelude::*;
 
-use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
+use crate::{constants::{NODE_HEIGHT, NODE_WIDTH}, models::{Node, NodeInput, NodeOutput}};
 
-use super::models::{Node, NodeInput, NodeOutput};
 
 pub struct MoveCmd {
     pub id: usize,
