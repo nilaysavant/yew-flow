@@ -90,7 +90,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             .zip(nodes_store.nodes.clone().iter().skip(1))
             .map(|(node1, node2)| {
                 // Get x and y for Node1 output
-                let (x1, y1) = node1.outputs[0]
+                let (x1, y1) = node1.outputs[1]
                     .reference
                     .cast::<Element>()
                     .map_or((0, 0), |elm| {
@@ -103,7 +103,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                         (x, y)
                     });
                 // Get x and y for Node2 input
-                let (x2, y2) = node2.inputs[0]
+                let (x2, y2) = node2.inputs[1]
                     .reference
                     .cast::<Element>()
                     .map_or((0, 0), |elm| {
@@ -115,25 +115,20 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                             .relative_y_pos_from_abs(rect.y() as i32, Some(rect.height() as i32));
                         (x, y)
                     });
-                match node1.outputs[0].reference.cast::<HtmlElement>() {
-                    Some(_) => {
-                        let edge = Edge {
-                            id: auto_id.clone().borrow_mut().next().unwrap(),
-                            color: Hsl::new(0., 100., 100., Some(0.8)),
-                            is_active: false,
-                            x1,
-                            y1,
-                            x2,
-                            y2,
-                        };
-                        log::info!("edge: {:?}", edge);
-                        html! {
-                            <RenderEdge
-                                edge={edge.clone()}
-                            />
-                        }
-                    }
-                    None => html! {},
+                let edge = Edge {
+                    id: auto_id.clone().borrow_mut().next().unwrap(),
+                    color: Hsl::new(0., 100., 100., Some(0.8)),
+                    is_active: false,
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                };
+                log::info!("edge: {:?}", edge);
+                html! {
+                    <RenderEdge
+                        edge={edge.clone()}
+                    />
                 }
             })
             .collect::<Html>()
