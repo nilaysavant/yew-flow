@@ -17,19 +17,25 @@ pub struct MoveActiveCmd {
     pub y: i32,
 }
 
-pub enum NodesAction {
+/// # Yew Flow Workspace Action
+/// 
+/// Actions to be dispatched to `WorkspaceStore`.
+pub enum WorkspaceAction {
     Move(MoveCmd),
     MoveActive(MoveActiveCmd),
     Activate(usize),
     Deactivate(usize),
 }
 
+/// # Yew Flow Workspace Store
+/// 
+/// Main state/store for `yew-flow`.
 #[derive(Clone, PartialEq, Debug)]
-pub struct NodesState {
+pub struct WorkspaceStore {
     pub nodes: Vec<Node>,
 }
 
-impl Default for NodesState {
+impl Default for WorkspaceStore {
     fn default() -> Self {
         // Generate a grid of nodes
         let auto_incr_id = Rc::new(RefCell::new(0..));
@@ -69,13 +75,13 @@ impl Default for NodesState {
     }
 }
 
-impl Reducible for NodesState {
-    type Action = NodesAction;
+impl Reducible for WorkspaceStore {
+    type Action = WorkspaceAction;
 
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
         let mut nodes = self.nodes.clone();
         let updated_nodes = match action {
-            NodesAction::Move(MoveCmd { id, x, y }) => {
+            WorkspaceAction::Move(MoveCmd { id, x, y }) => {
                 let node = nodes.iter_mut().find(|a| a.id == id);
                 if let Some(node) = node {
                     node.x = x;
@@ -83,7 +89,7 @@ impl Reducible for NodesState {
                 }
                 nodes
             }
-            NodesAction::MoveActive(MoveActiveCmd { x, y }) => {
+            WorkspaceAction::MoveActive(MoveActiveCmd { x, y }) => {
                 let active_node = nodes.iter_mut().find(|n| n.is_active);
                 if let Some(active_node) = active_node {
                     active_node.x = x;
@@ -91,14 +97,14 @@ impl Reducible for NodesState {
                 }
                 nodes
             }
-            NodesAction::Activate(id) => {
+            WorkspaceAction::Activate(id) => {
                 let node = nodes.iter_mut().find(|a| a.id == id);
                 if let Some(node) = node {
                     node.is_active = true
                 }
                 nodes
             }
-            NodesAction::Deactivate(id) => {
+            WorkspaceAction::Deactivate(id) => {
                 let node = nodes.iter_mut().find(|a| a.id == id);
                 if let Some(node) = node {
                     node.is_active = false

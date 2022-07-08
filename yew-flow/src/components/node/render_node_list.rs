@@ -8,7 +8,7 @@ use crate::{
     components::edge::render_edge::RenderEdge,
     constants::{NODE_HEIGHT, NODE_WIDTH},
     models::{Edge, Node},
-    store::{MoveActiveCmd, NodesAction, NodesState},
+    store::{MoveActiveCmd, WorkspaceAction, WorkspaceStore},
 };
 
 use super::render_node::RenderNode;
@@ -41,7 +41,7 @@ pub struct RenderNodeListProps {}
 pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     // log::info!("render_nodes");
     let container_ref = use_node_ref();
-    let nodes_store = use_reducer(NodesState::default);
+    let nodes_store = use_reducer(WorkspaceStore::default);
     let dispatcher = nodes_store.dispatcher();
 
     let on_container_mouse_move = {
@@ -61,18 +61,18 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     .clamp(0, container_dimensions.width - NODE_WIDTH);
                 let y = (e.page_y() - container_dimensions.offset_top - NODE_HEIGHT / 2)
                     .clamp(0, container_dimensions.height - NODE_HEIGHT);
-                nodes_store.dispatch(NodesAction::MoveActive(MoveActiveCmd { x, y }))
+                nodes_store.dispatch(WorkspaceAction::MoveActive(MoveActiveCmd { x, y }))
             }
         })
     };
 
     let on_node_mouse_down = use_ref(|| {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |node: Node| dispatcher.dispatch(NodesAction::Activate(node.id)))
+        Callback::from(move |node: Node| dispatcher.dispatch(WorkspaceAction::Activate(node.id)))
     });
     let on_node_mouse_up = use_ref(|| {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |node: Node| dispatcher.dispatch(NodesAction::Deactivate(node.id)))
+        Callback::from(move |node: Node| dispatcher.dispatch(WorkspaceAction::Deactivate(node.id)))
     });
     let on_node_click = use_ref(|| {
         let dispatcher = dispatcher.clone();
