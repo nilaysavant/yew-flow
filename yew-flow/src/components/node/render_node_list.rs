@@ -136,7 +136,6 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                 "flex-col",
                 "min-h-0",
                 "p-4",
-                "pt-10"
             )}
         >
             <div
