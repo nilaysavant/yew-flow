@@ -36,12 +36,20 @@ pub fn render_node(
             let handle_mouse_down = {
                 let on_input_mouse_down = on_input_mouse_down.clone();
                 let input = input.clone();
-                Callback::from(move |_| on_input_mouse_down.emit(input.clone()))
+                Callback::from(move |e: MouseEvent| {
+                    // e.stop_propagation();
+                    log::info!("inpt mouse down: {:?}", input);
+                    on_input_mouse_down.emit(input.clone())
+                })
             };
             let handle_mouse_up = {
                 let on_input_mouse_up = on_input_mouse_up.clone();
                 let input = input.clone();
-                Callback::from(move |_| on_input_mouse_up.emit(input.clone()))
+                Callback::from(move |e: MouseEvent| {
+                    // e.stop_propagation();
+                    log::info!("inpt mouse up: {:?}", input);
+                    on_input_mouse_up.emit(input.clone())
+                })
             };
             html! {
                 <span
