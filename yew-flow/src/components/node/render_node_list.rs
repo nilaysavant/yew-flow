@@ -25,18 +25,19 @@ pub struct RenderNodeListProps {}
 pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     // log::info!("render_nodes");
     let container_ref = use_node_ref();
-    let nodes_store = use_reducer(WorkspaceStore::default);
-    let dispatcher = nodes_store.dispatcher();
+    let store = use_reducer(WorkspaceStore::default);
+    let dispatcher = store.dispatcher();
 
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
-        let nodes_store = nodes_store.clone();
+        let store = store.clone();
         let viewport = Viewport::new(container_ref);
         Callback::from(move |e: MouseEvent| {
             if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
                 let x = viewport.relative_x_pos_from_abs(e.page_x(), Some(NODE_WIDTH));
                 let y = viewport.relative_y_pos_from_abs(e.page_y(), Some(NODE_HEIGHT));
-                nodes_store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+
+                store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
             }
         })
     };
@@ -55,9 +56,9 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         let dispatcher = dispatcher.clone();
         Callback::from(move |node: Node| {
             // if node.is_active {
-            //     nodes_store.dispatch(NodesAction::Deactivate(node.id));
+            //     store.dispatch(NodesAction::Deactivate(node.id));
             // } else {
-            //     nodes_store.dispatch(NodesAction::Activate(node.id));
+            //     store.dispatch(NodesAction::Activate(node.id));
             // }
         })
     });
@@ -93,7 +94,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     });
 
     let render_nodes = {
-        nodes_store
+        store
             .nodes
             .iter()
             .map(|node| {
@@ -118,11 +119,11 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         let viewport = Viewport::new(container_ref);
         let auto_id = Rc::new(RefCell::new(0..));
         log::info!("auto_id: {:?}", auto_id);
-        nodes_store
+        store
             .nodes
             .clone()
             .iter()
-            .zip(nodes_store.nodes.clone().iter().skip(1))
+            .zip(store.nodes.clone().iter().skip(1))
             .map(|(node1, node2)| {
                 // Get x and y for Node1 output
                 let (x1, y1) = node1.outputs[1]
