@@ -95,7 +95,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     .cast::<Element>()
                     .map_or((0, 0), |elm| {
                         let rect = elm.get_bounding_client_rect();
-                        // Convert from abs pos to relative wrt
+                        // Convert from abs pos to relative wrt viewport
                         let x = viewport.relative_x_pos_from_abs(rect.x() as i32, None);
                         let y = viewport.relative_y_pos_from_abs(rect.y() as i32, None) + 4; // minor adjustments for precision
                         (x, y)
@@ -106,7 +106,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     .cast::<Element>()
                     .map_or((0, 0), |elm| {
                         let rect = elm.get_bounding_client_rect();
-                        // Convert from abs pos to relative wrt
+                        // Convert from abs pos to relative wrt viewport
                         let x = viewport.relative_x_pos_from_abs(rect.x() as i32, None);
                         let y = viewport.relative_y_pos_from_abs(rect.y() as i32, None) + 4; // minor adjustments for precision
                         (x, y)
