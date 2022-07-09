@@ -41,13 +41,13 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     let on_node_mouse_down = use_ref(|| {
         let dispatcher = dispatcher.clone();
         Callback::from(move |node: Node| {
-            dispatcher.dispatch(WorkspaceAction::NodeActivate(node.id))
+            dispatcher.dispatch(WorkspaceAction::NodeDragActivate(node.id))
         })
     });
     let on_node_mouse_up = use_ref(|| {
         let dispatcher = dispatcher.clone();
         Callback::from(move |node: Node| {
-            dispatcher.dispatch(WorkspaceAction::NodeDeactivate(node.id))
+            dispatcher.dispatch(WorkspaceAction::NodeDragDeactivate)
         })
     });
     let on_node_click = use_ref(|| {

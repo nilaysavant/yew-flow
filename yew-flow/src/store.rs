@@ -26,14 +26,12 @@ pub struct ActiveNodeMoveCmd {
 ///
 /// Actions to be dispatched to `WorkspaceStore`.
 pub enum WorkspaceAction {
-    /// When node needs to be moved.
-    NodeMove(NodeMoveCmd),
     /// When active node needs to be moved.
     ActiveNodeMove(ActiveNodeMoveCmd),
-    /// When node needs to be activated.
-    NodeActivate(usize),
-    /// When node needs to be deactivated.
-    NodeDeactivate(usize),
+    /// When node drag needs to be activated.
+    NodeDragActivate(usize),
+    /// When node drag needs to be deactivated.
+    NodeDragDeactivate,
 }
 
 /// # User Interaction Mode
@@ -78,7 +76,6 @@ impl Default for WorkspaceStore {
                         x: ((NODE_WIDTH as usize + 10) * i) as i32,
                         y: ((NODE_HEIGHT as usize + 10) * j) as i32,
                         color,
-                        is_active: false,
                         inputs: (0..3)
                             .into_iter()
                             .map(|input_id| NodeInput {
@@ -111,44 +108,41 @@ impl Reducible for WorkspaceStore {
 
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
         let mut nodes = self.nodes.clone();
-        let updated_nodes = match action {
-            WorkspaceAction::NodeMove(NodeMoveCmd { id, x, y }) => {
-                let node = nodes.iter_mut().find(|a| a.id == id);
-                if let Some(node) = node {
-                    node.x = x;
-                    node.y = y;
-                }
-                nodes
-            }
+        let mut interaction_mode = self.interaction_mode.clone();
+        match action {
             WorkspaceAction::ActiveNodeMove(ActiveNodeMoveCmd { x, y }) => {
-                let active_node = nodes.iter_mut().find(|n| n.is_active);
-                if let Some(active_node) = active_node {
-                    active_node.x = x;
-                    active_node.y = y;
+                if let InteractionMode::NodeDrag(id) = interaction_mode {
+                    let active_node = nodes.iter_mut().find(|n| n.id == id);
+                    if let Some(active_node) = active_node {
+                        active_node.x = x;
+                        active_node.y = y;
+                    }
                 }
-                nodes
-            }
-            WorkspaceAction::NodeActivate(id) => {
-                let node = nodes.iter_mut().find(|a| a.id == id);
-                if let Some(node) = node {
-                    node.is_active = true
+                Self {
+                    nodes,
+                    interaction_mode,
+                    edges: self.edges.clone(),
                 }
-                nodes
+                .into()
             }
-            WorkspaceAction::NodeDeactivate(id) => {
-                let node = nodes.iter_mut().find(|a| a.id == id);
-                if let Some(node) = node {
-                    node.is_active = false
+            WorkspaceAction::NodeDragActivate(id) => {
+                interaction_mode = InteractionMode::NodeDrag(id);
+                Self {
+                    nodes,
+                    interaction_mode,
+                    edges: self.edges.clone(),
                 }
-                nodes
+                .into()
             }
-        };
-
-        Self {
-            nodes: updated_nodes,
-            edges: vec![],
-            interaction_mode: InteractionMode::None,
+            WorkspaceAction::NodeDragDeactivate => {
+                interaction_mode = InteractionMode::None;
+                Self {
+                    nodes,
+                    interaction_mode,
+                    edges: self.edges.clone(),
+                }
+                .into()
+            }
         }
-        .into()
     }
 }
