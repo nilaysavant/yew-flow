@@ -36,13 +36,28 @@ pub enum WorkspaceAction {
     NodeDeactivate(usize),
 }
 
+/// # User Interaction Mode
+///
+/// Enum of all modes of user interaction with the
+/// flow workspace.
+#[derive(Debug, Clone, PartialEq)]
+pub enum InteractionMode {
+    /// No interaction mode.
+    None,
+    /// Node drag mode. Pass `node_id` of node being dragged.
+    NodeDrag(usize),
+    /// New Edge drag mode.
+    NewEdgeDrag,
+}
+
 /// # Yew Flow Workspace Store
 ///
 /// Main state/store for `yew-flow`.
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct WorkspaceStore {
     pub nodes: Vec<Node>,
     pub edges: Vec<Edge>,
+    pub interaction_mode: InteractionMode,
 }
 
 impl Default for WorkspaceStore {
@@ -86,6 +101,7 @@ impl Default for WorkspaceStore {
         Self {
             nodes,
             edges: vec![],
+            interaction_mode: InteractionMode::None,
         }
     }
 }
@@ -131,6 +147,7 @@ impl Reducible for WorkspaceStore {
         Self {
             nodes: updated_nodes,
             edges: vec![],
+            interaction_mode: InteractionMode::None,
         }
         .into()
     }
