@@ -10,7 +10,7 @@ use crate::{
         viewport::models::Viewport,
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
-    store::{ActiveNodeMoveCmd, NewEdgeDragActivateCmd, WorkspaceAction, WorkspaceStore},
+    store::{DragNodeCmd, NewEdgeDragActivateCmd, WorkspaceAction, WorkspaceStore},
 };
 
 use super::{
@@ -36,7 +36,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
                 let x = viewport.relative_x_pos_from_abs(e.page_x(), Some(NODE_WIDTH));
                 let y = viewport.relative_y_pos_from_abs(e.page_y(), Some(NODE_HEIGHT));
-                nodes_store.dispatch(WorkspaceAction::ActiveNodeMove(ActiveNodeMoveCmd { x, y }))
+                nodes_store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
             }
         })
     };
