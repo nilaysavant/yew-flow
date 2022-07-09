@@ -1,7 +1,3 @@
-use std::{cell::RefCell, rc::Rc};
-
-use colorsys::Hsl;
-use web_sys::{Element, HtmlElement};
 use yew::prelude::*;
 
 use crate::{
@@ -10,7 +6,10 @@ use crate::{
         viewport::models::Viewport,
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
-    store::{DragEdgeCmd, DragNodeCmd, NewEdgeDragActivateCmd, WorkspaceAction, WorkspaceStore},
+    store::{
+        DragEdgeCmd, DragNodeCmd, InteractionMode, NewEdgeDragActivateCmd, WorkspaceAction,
+        WorkspaceStore,
+    },
 };
 
 use super::{
@@ -37,13 +36,13 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                 let x = viewport.relative_x_pos_from_abs(e.page_x(), Some(NODE_WIDTH));
                 let y = viewport.relative_y_pos_from_abs(e.page_y(), Some(NODE_HEIGHT));
                 match store.interaction_mode {
-                    crate::store::InteractionMode::None => {
+                    InteractionMode::None => {
                         // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
-                    crate::store::InteractionMode::NodeDrag(_) => {
+                    InteractionMode::NodeDrag(_) => {
                         store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
-                    crate::store::InteractionMode::NewEdgeDrag => {
+                    InteractionMode::NewEdgeDrag => {
                         store.dispatch(WorkspaceAction::DragEdge(DragEdgeCmd { x2: x, y2: y }))
                     }
                 }
@@ -54,13 +53,11 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         let store = store.clone();
         Callback::from(move |e: MouseEvent| {
             match store.interaction_mode {
-                crate::store::InteractionMode::None => {
+                InteractionMode::None => {
                     // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                 }
-                crate::store::InteractionMode::NodeDrag(_) => {
-                    store.dispatch(WorkspaceAction::NodeDragDeactivate)
-                }
-                crate::store::InteractionMode::NewEdgeDrag => {
+                InteractionMode::NodeDrag(_) => store.dispatch(WorkspaceAction::NodeDragDeactivate),
+                InteractionMode::NewEdgeDrag => {
                     store.dispatch(WorkspaceAction::NewEdgeDragDeactivate)
                 }
             }
@@ -72,10 +69,21 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             dispatcher.dispatch(WorkspaceAction::NodeDragActivate(node.id))
         })
     });
-    let on_node_mouse_up = use_ref(|| {
+    let on_node_mouse_up = {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |node: Node| dispatcher.dispatch(WorkspaceAction::NodeDragDeactivate))
-    });
+        let store = store.clone();
+        Callback::from(move |node: Node| {
+            match store.interaction_mode {
+                InteractionMode::None => {
+                    // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                }
+                InteractionMode::NodeDrag(_) => store.dispatch(WorkspaceAction::NodeDragDeactivate),
+                InteractionMode::NewEdgeDrag => {
+                    store.dispatch(WorkspaceAction::NewEdgeDragDeactivate)
+                }
+            }
+        })
+    };
     let on_node_click = use_ref(|| {
         let dispatcher = dispatcher.clone();
         Callback::from(move |node: Node| {

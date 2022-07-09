@@ -12,7 +12,7 @@ pub struct RenderNodeProps {
     pub on_input_mouse_up: Callback<NodeInput>,
     pub on_output_mouse_down: Callback<NodeOutput>,
     pub on_output_mouse_up: Callback<NodeOutput>,
-    pub on_mouse_up: std::rc::Rc<Callback<Node>>,
+    pub on_mouse_up: Callback<Node>,
     pub on_click: std::rc::Rc<Callback<Node>>,
 }
 
