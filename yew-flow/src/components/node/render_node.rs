@@ -2,12 +2,16 @@ use yew::prelude::*;
 
 use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
 
-use super::models::Node;
+use super::models::{Node, NodeInput, NodeOutput};
 
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderNodeProps {
     pub node: Node,
     pub on_mouse_down: std::rc::Rc<Callback<Node>>,
+    pub on_input_mouse_down: std::rc::Rc<Callback<NodeInput>>,
+    pub on_input_mouse_up: std::rc::Rc<Callback<NodeInput>>,
+    pub on_output_mouse_down: std::rc::Rc<Callback<NodeOutput>>,
+    pub on_output_mouse_up: std::rc::Rc<Callback<NodeOutput>>,
     pub on_mouse_up: std::rc::Rc<Callback<Node>>,
     pub on_click: std::rc::Rc<Callback<Node>>,
 }
@@ -19,16 +23,32 @@ pub fn render_node(
         on_mouse_down,
         on_mouse_up,
         on_click,
+        on_input_mouse_down,
+        on_input_mouse_up,
+        on_output_mouse_down,
+        on_output_mouse_up,
     }: &RenderNodeProps,
 ) -> Html {
     let render_inputs = node
         .inputs
         .iter()
         .map(|input| {
+            let handle_mouse_down = {
+                let on_input_mouse_down = on_input_mouse_down.clone();
+                let input = input.clone();
+                Callback::from(move |_| on_input_mouse_down.emit(input.clone()))
+            };
+            let handle_mouse_up = {
+                let on_input_mouse_up = on_input_mouse_up.clone();
+                let input = input.clone();
+                Callback::from(move |_| on_input_mouse_up.emit(input.clone()))
+            };
             html! {
                 <span
                     key={input.id.clone()}
                     ref={input.reference.clone()}
+                    onmousedown={handle_mouse_down}
+                    onmouseup={handle_mouse_up}
                     class={classes!(
                         "bg-neutral-600",
                         "border-2",
@@ -46,10 +66,22 @@ pub fn render_node(
         .outputs
         .iter()
         .map(|output| {
+            let handle_mouse_down = {
+                let on_output_mouse_down = on_output_mouse_down.clone();
+                let output = output.clone();
+                Callback::from(move |_| on_output_mouse_down.emit(output.clone()))
+            };
+            let handle_mouse_up = {
+                let on_output_mouse_up = on_output_mouse_up.clone();
+                let output = output.clone();
+                Callback::from(move |_| on_output_mouse_up.emit(output.clone()))
+            };
             html! {
                 <span
                     key={output.id.clone()}
                     ref={output.reference.clone()}
+                    onmousedown={handle_mouse_down}
+                    onmouseup={handle_mouse_up}
                     class={classes!(
                         "bg-neutral-600",
                         "border-2",

@@ -13,7 +13,10 @@ use crate::{
     store::{ActiveNodeMoveCmd, WorkspaceAction, WorkspaceStore},
 };
 
-use super::{models::Node, render_node::RenderNode};
+use super::{
+    models::{Node, NodeInput, NodeOutput},
+    render_node::RenderNode,
+};
 
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderNodeListProps {}
@@ -58,6 +61,22 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             // }
         })
     });
+    let on_node_input_mouse_down = use_ref(|| {
+        let dispatcher = dispatcher.clone();
+        Callback::from(move |input: NodeInput| {})
+    });
+    let on_node_input_mouse_up = use_ref(|| {
+        let dispatcher = dispatcher.clone();
+        Callback::from(move |input: NodeInput| {})
+    });
+    let on_node_output_mouse_down = use_ref(|| {
+        let dispatcher = dispatcher.clone();
+        Callback::from(move |output: NodeOutput| {})
+    });
+    let on_node_output_mouse_up = use_ref(|| {
+        let dispatcher = dispatcher.clone();
+        Callback::from(move |output: NodeOutput| {})
+    });
 
     let render_nodes = {
         nodes_store
@@ -70,6 +89,10 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                         on_mouse_down={on_node_mouse_down.clone()}
                         on_mouse_up={on_node_mouse_up.clone()}
                         on_click={on_node_click.clone()}
+                        on_input_mouse_down={on_node_input_mouse_down.clone()}
+                        on_input_mouse_up={on_node_input_mouse_up.clone()}
+                        on_output_mouse_down={on_node_output_mouse_down.clone()}
+                        on_output_mouse_up={on_node_output_mouse_up.clone()}
                     />
                 }
             })
