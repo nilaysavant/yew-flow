@@ -21,22 +21,27 @@ pub struct DragNodeCmd {
 /// # Node Connectors
 ///
 /// Node connectors. Either input or output.
+#[derive(Debug, Clone, PartialEq)]
 pub enum Connector {
-    /// Input connector. Takes its `id` as `usize`.
-    Input(String),
-    /// Output connector. Takes its `id` as `usize`.
-    Output(String),
+    /// Input connector.
+    Input,
+    /// Output connector.
+    Output,
 }
 
 pub struct NewEdgeDragActivateCmd {
     pub viewport: Viewport,
     /// reference to the from connector
     pub from_reference: NodeRef,
+    /// Type of from connector
+    pub from_connector: Connector,
 }
 
 pub struct DragEdgeCmd {
-    pub x2: i32,
-    pub y2: i32,
+    // x cord to which dragged edge is ending.
+    pub x: i32,
+    // y cord to which dragged edge is ending.
+    pub y: i32,
 }
 
 /// # Yew Flow Workspace Action
@@ -59,6 +64,11 @@ pub enum WorkspaceAction {
     NewEdgeDragDeactivate,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct NewEdgeDragMode {
+    pub from_connector: Connector,
+}
+
 /// # User Interaction Mode
 ///
 /// Enum of all modes of user interaction with the
@@ -70,7 +80,7 @@ pub enum InteractionMode {
     /// Node drag mode. Pass `node_id` of node being dragged.
     NodeDrag(usize),
     /// New Edge drag mode.
-    NewEdgeDrag,
+    NewEdgeDrag(NewEdgeDragMode),
 }
 
 /// # Yew Flow Workspace Store
@@ -173,8 +183,9 @@ impl Reducible for WorkspaceStore {
             WorkspaceAction::NewEdgeDragActivate(NewEdgeDragActivateCmd {
                 viewport,
                 from_reference,
+                from_connector,
             }) => {
-                interaction_mode = InteractionMode::NewEdgeDrag;
+                interaction_mode = InteractionMode::NewEdgeDrag(NewEdgeDragMode { from_connector });
                 if let Some(elm) = from_reference.cast::<Element>() {
                     if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
                         let x1 = elm.get_bounding_client_rect().x() as i32;
@@ -201,11 +212,21 @@ impl Reducible for WorkspaceStore {
                 }
                 .into()
             }
-            WorkspaceAction::DragEdge(DragEdgeCmd { x2, y2 }) => {
-                if let InteractionMode::NewEdgeDrag = interaction_mode {
+            WorkspaceAction::DragEdge(DragEdgeCmd { x, y }) => {
+                if let InteractionMode::NewEdgeDrag(NewEdgeDragMode { ref from_connector }) =
+                    interaction_mode
+                {
                     if let Some(edge) = edges.last_mut() {
-                        edge.x2 = x2;
-                        edge.y2 = y2;
+                        match from_connector {
+                            Connector::Input => {
+                                edge.x2 = x;
+                                edge.y2 = y;
+                            }
+                            Connector::Output => {
+                                edge.x1 = x;
+                                edge.y1 = y;
+                            }
+                        }
                     }
                 }
                 Self {

@@ -7,8 +7,8 @@ use crate::{
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
     store::{
-        DragEdgeCmd, DragNodeCmd, InteractionMode, NewEdgeDragActivateCmd, WorkspaceAction,
-        WorkspaceStore,
+        Connector, DragEdgeCmd, DragNodeCmd, InteractionMode, NewEdgeDragActivateCmd,
+        NewEdgeDragMode, WorkspaceAction, WorkspaceStore,
     },
 };
 
@@ -42,10 +42,10 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                         let y = viewport.relative_y_pos_from_abs(e.page_y(), Some(NODE_HEIGHT));
                         store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
-                    InteractionMode::NewEdgeDrag => {
+                    InteractionMode::NewEdgeDrag(_) => {
                         let x = viewport.relative_x_pos_from_abs(e.page_x(), None);
                         let y = viewport.relative_y_pos_from_abs(e.page_y(), None);
-                        store.dispatch(WorkspaceAction::DragEdge(DragEdgeCmd { x2: x, y2: y }))
+                        store.dispatch(WorkspaceAction::DragEdge(DragEdgeCmd { x, y }))
                     }
                 }
             }
@@ -59,7 +59,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                 }
                 InteractionMode::NodeDrag(_) => store.dispatch(WorkspaceAction::NodeDragDeactivate),
-                InteractionMode::NewEdgeDrag => {
+                InteractionMode::NewEdgeDrag(_) => {
                     store.dispatch(WorkspaceAction::NewEdgeDragDeactivate)
                 }
             }
@@ -80,7 +80,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                 }
                 InteractionMode::NodeDrag(_) => store.dispatch(WorkspaceAction::NodeDragDeactivate),
-                InteractionMode::NewEdgeDrag => {
+                InteractionMode::NewEdgeDrag(_) => {
                     store.dispatch(WorkspaceAction::NewEdgeDragDeactivate)
                 }
             }
@@ -105,6 +105,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                 NewEdgeDragActivateCmd {
                     from_reference: input.reference,
                     viewport: viewport.clone(),
+                    from_connector: Connector::Input,
                 },
             ))
         })
@@ -124,6 +125,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                 NewEdgeDragActivateCmd {
                     from_reference: output.reference,
                     viewport: viewport.clone(),
+                    from_connector: Connector::Output,
                 },
             ))
         })
