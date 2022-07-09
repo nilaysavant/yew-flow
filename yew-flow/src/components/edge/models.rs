@@ -14,5 +14,17 @@ pub struct Edge {
     /// To (x2, y2) coordinate
     pub y2: i32,
     pub color: Hsl,
-    pub is_active: bool,
+}
+
+impl Default for Edge {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            x1: Default::default(),
+            y1: Default::default(),
+            x2: Default::default(),
+            y2: Default::default(),
+            color: Hsl::new(0., 100., 100., Some(0.8)),
+        }
+    }
 }

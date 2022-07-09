@@ -46,9 +46,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     });
     let on_node_mouse_up = use_ref(|| {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |node: Node| {
-            dispatcher.dispatch(WorkspaceAction::NodeDragDeactivate)
-        })
+        Callback::from(move |node: Node| dispatcher.dispatch(WorkspaceAction::NodeDragDeactivate))
     });
     let on_node_click = use_ref(|| {
         let dispatcher = dispatcher.clone();
@@ -114,7 +112,6 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                 let edge = Edge {
                     id: auto_id.clone().borrow_mut().next().unwrap(),
                     color: Hsl::new(0., 100., 100., Some(0.8)),
-                    is_active: false,
                     x1,
                     y1,
                     x2,

@@ -1,6 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use colorsys::Hsl;
+use web_sys::Element;
 use yew::prelude::*;
 
 use crate::{
@@ -22,6 +23,23 @@ pub struct ActiveNodeMoveCmd {
     pub y: i32,
 }
 
+/// # Node Connectors
+///
+/// Node connectors. Either input or output.
+pub enum Connector {
+    /// Input connector. Takes its `id` as `usize`.
+    Input(String),
+    /// Output connector. Takes its `id` as `usize`.
+    Output(String),
+}
+
+pub struct NewEdgeDragActivateCmd {
+    /// from connector x
+    pub x1: i32,
+    /// from connector y
+    pub y1: i32,
+}
+
 /// # Yew Flow Workspace Action
 ///
 /// Actions to be dispatched to `WorkspaceStore`.
@@ -34,6 +52,10 @@ pub enum WorkspaceAction {
     NodeDragActivate(usize),
     /// When node drag needs to be deactivated.
     NodeDragDeactivate,
+    /// When new edge drag needs to be activated.
+    NewEdgeDragActivate(NewEdgeDragActivateCmd),
+    /// When new edge drag needs to be deactivated.
+    NewEdgeDragDeactivate,
 }
 
 /// # User Interaction Mode
@@ -110,6 +132,7 @@ impl Reducible for WorkspaceStore {
 
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
         let mut nodes = self.nodes.clone();
+        let mut edges = self.edges.clone();
         let mut interaction_mode = self.interaction_mode.clone();
         match action {
             WorkspaceAction::Init => Self::default().into(),
@@ -123,8 +146,8 @@ impl Reducible for WorkspaceStore {
                 }
                 Self {
                     nodes,
+                    edges,
                     interaction_mode,
-                    edges: self.edges.clone(),
                 }
                 .into()
             }
@@ -132,8 +155,8 @@ impl Reducible for WorkspaceStore {
                 interaction_mode = InteractionMode::NodeDrag(id);
                 Self {
                     nodes,
+                    edges,
                     interaction_mode,
-                    edges: self.edges.clone(),
                 }
                 .into()
             }
@@ -141,11 +164,33 @@ impl Reducible for WorkspaceStore {
                 interaction_mode = InteractionMode::None;
                 Self {
                     nodes,
+                    edges,
                     interaction_mode,
-                    edges: self.edges.clone(),
                 }
                 .into()
             }
+            WorkspaceAction::NewEdgeDragActivate(NewEdgeDragActivateCmd { x1, y1 }) => {
+                if let InteractionMode::NewEdgeDrag = interaction_mode {
+                    let mut new_edge = Edge {
+                        x1,
+                        y1,
+                        x2: x1,
+                        y2: y1,
+                        ..Default::default()
+                    };
+                    if let Some(edge) = edges.last() {
+                        new_edge.id = edge.id + 1;
+                    }
+                    edges.push(new_edge);
+                }
+                Self {
+                    nodes,
+                    edges,
+                    interaction_mode,
+                }
+                .into()
+            }
+            WorkspaceAction::NewEdgeDragDeactivate => todo!(),
         }
     }
 }

@@ -18,7 +18,6 @@ pub fn render_edge(RenderEdgeProps { edge }: &RenderEdgeProps) -> Html {
         x2,
         y2,
         color,
-        is_active,
     } = edge;
 
     let sx1 = x1 + (NODE_WIDTH / 2);
