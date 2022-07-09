@@ -189,7 +189,15 @@ impl Reducible for WorkspaceStore {
                 }
                 .into()
             }
-            WorkspaceAction::NewEdgeDragDeactivate => todo!(),
+            WorkspaceAction::NewEdgeDragDeactivate => {
+                interaction_mode = InteractionMode::None;
+                Self {
+                    nodes,
+                    edges,
+                    interaction_mode,
+                }
+                .into()
+            }
         }
     }
 }

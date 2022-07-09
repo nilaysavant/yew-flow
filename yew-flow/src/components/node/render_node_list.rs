@@ -23,10 +23,10 @@ pub struct RenderNodeListProps {}
 
 #[function_component(RenderNodeList)]
 pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
-    // log::info!("render_nodes");
     let container_ref = use_node_ref();
     let store = use_reducer(WorkspaceStore::default);
     let dispatcher = store.dispatcher();
+    log::info!("store.interaction_mode: {:?}", store.interaction_mode);
 
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
@@ -36,8 +36,17 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
                 let x = viewport.relative_x_pos_from_abs(e.page_x(), Some(NODE_WIDTH));
                 let y = viewport.relative_y_pos_from_abs(e.page_y(), Some(NODE_HEIGHT));
-
-                store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                match store.interaction_mode {
+                    crate::store::InteractionMode::None => {
+                        // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                    }
+                    crate::store::InteractionMode::NodeDrag(_) => {
+                        store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                    }
+                    crate::store::InteractionMode::NewEdgeDrag => {
+                        store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                    }
+                }
             }
         })
     };
@@ -62,7 +71,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             // }
         })
     });
-    let on_node_input_mouse_down = use_ref(|| {
+    let on_node_input_mouse_down = {
         let dispatcher = dispatcher.clone();
         let container_ref = container_ref.clone();
         let viewport = Viewport::new(container_ref);
@@ -79,19 +88,23 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                 }
             }
         })
-    });
-    let on_node_input_mouse_up = use_ref(|| {
+    };
+    let on_node_input_mouse_up = {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |input: NodeInput| {})
-    });
-    let on_node_output_mouse_down = use_ref(|| {
+        let container_ref = container_ref.clone();
+        let viewport = Viewport::new(container_ref);
+        Callback::from(move |input: NodeInput| {
+            dispatcher.dispatch(WorkspaceAction::NewEdgeDragDeactivate)
+        })
+    };
+    let on_node_output_mouse_down = {
         let dispatcher = dispatcher.clone();
         Callback::from(move |output: NodeOutput| {})
-    });
-    let on_node_output_mouse_up = use_ref(|| {
+    };
+    let on_node_output_mouse_up = {
         let dispatcher = dispatcher.clone();
         Callback::from(move |output: NodeOutput| {})
-    });
+    };
 
     let render_nodes = {
         store
@@ -118,7 +131,6 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         let container_ref = container_ref.clone();
         let viewport = Viewport::new(container_ref);
         let auto_id = Rc::new(RefCell::new(0..));
-        log::info!("auto_id: {:?}", auto_id);
         store
             .nodes
             .clone()

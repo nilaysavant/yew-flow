@@ -8,10 +8,10 @@ use super::models::{Node, NodeInput, NodeOutput};
 pub struct RenderNodeProps {
     pub node: Node,
     pub on_mouse_down: std::rc::Rc<Callback<Node>>,
-    pub on_input_mouse_down: std::rc::Rc<Callback<NodeInput>>,
-    pub on_input_mouse_up: std::rc::Rc<Callback<NodeInput>>,
-    pub on_output_mouse_down: std::rc::Rc<Callback<NodeOutput>>,
-    pub on_output_mouse_up: std::rc::Rc<Callback<NodeOutput>>,
+    pub on_input_mouse_down: Callback<NodeInput>,
+    pub on_input_mouse_up: Callback<NodeInput>,
+    pub on_output_mouse_down: Callback<NodeOutput>,
+    pub on_output_mouse_up: Callback<NodeOutput>,
     pub on_mouse_up: std::rc::Rc<Callback<Node>>,
     pub on_click: std::rc::Rc<Callback<Node>>,
 }
