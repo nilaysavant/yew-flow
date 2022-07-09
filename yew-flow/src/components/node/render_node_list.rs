@@ -76,17 +76,12 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         let container_ref = container_ref.clone();
         let viewport = Viewport::new(container_ref);
         Callback::from(move |input: NodeInput| {
-            if let Some(elm) = input.reference.cast::<Element>() {
-                if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
-                    let x1 = elm.get_bounding_client_rect().x() as i32;
-                    let y1 = elm.get_bounding_client_rect().y() as i32;
-                    let x1 = viewport.relative_x_pos_from_abs(x1, None);
-                    let y1 = viewport.relative_y_pos_from_abs(y1, None);
-                    dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
-                        NewEdgeDragActivateCmd { x1, y1 },
-                    ))
-                }
-            }
+            dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
+                NewEdgeDragActivateCmd {
+                    from_reference: input.reference,
+                    viewport: viewport.clone(),
+                },
+            ))
         })
     };
     let on_node_input_mouse_up = {
@@ -100,17 +95,12 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         let container_ref = container_ref.clone();
         let viewport = Viewport::new(container_ref);
         Callback::from(move |output: NodeOutput| {
-            if let Some(elm) = output.reference.cast::<Element>() {
-                if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
-                    let x1 = elm.get_bounding_client_rect().x() as i32;
-                    let y1 = elm.get_bounding_client_rect().y() as i32;
-                    let x1 = viewport.relative_x_pos_from_abs(x1, None);
-                    let y1 = viewport.relative_y_pos_from_abs(y1, None);
-                    dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
-                        NewEdgeDragActivateCmd { x1, y1 },
-                    ))
-                }
-            }
+            dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
+                NewEdgeDragActivateCmd {
+                    from_reference: output.reference,
+                    viewport: viewport.clone(),
+                },
+            ))
         })
     };
     let on_node_output_mouse_up = {

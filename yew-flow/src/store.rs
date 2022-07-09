@@ -8,6 +8,7 @@ use crate::{
     components::{
         edge::models::Edge,
         node::models::{Node, NodeInput, NodeOutput},
+        viewport::models::Viewport,
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
 };
@@ -34,10 +35,9 @@ pub enum Connector {
 }
 
 pub struct NewEdgeDragActivateCmd {
-    /// from connector x
-    pub x1: i32,
-    /// from connector y
-    pub y1: i32,
+    pub viewport: Viewport,
+    /// reference to the from connector
+    pub from_reference: NodeRef,
 }
 
 /// # Yew Flow Workspace Action
@@ -169,19 +169,30 @@ impl Reducible for WorkspaceStore {
                 }
                 .into()
             }
-            WorkspaceAction::NewEdgeDragActivate(NewEdgeDragActivateCmd { x1, y1 }) => {
+            WorkspaceAction::NewEdgeDragActivate(NewEdgeDragActivateCmd {
+                viewport,
+                from_reference,
+            }) => {
                 interaction_mode = InteractionMode::NewEdgeDrag;
-                let mut new_edge = Edge {
-                    x1,
-                    y1,
-                    x2: x1,
-                    y2: y1,
-                    ..Default::default()
-                };
-                if let Some(edge) = edges.last() {
-                    new_edge.id = edge.id + 1;
+                if let Some(elm) = from_reference.cast::<Element>() {
+                    if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
+                        let x1 = elm.get_bounding_client_rect().x() as i32;
+                        let y1 = elm.get_bounding_client_rect().y() as i32;
+                        let x1 = viewport.relative_x_pos_from_abs(x1, None);
+                        let y1 = viewport.relative_y_pos_from_abs(y1, None);
+                        let mut new_edge = Edge {
+                            x1,
+                            y1,
+                            x2: x1,
+                            y2: y1,
+                            ..Default::default()
+                        };
+                        if let Some(edge) = edges.last() {
+                            new_edge.id = edge.id + 1;
+                        }
+                        edges.push(new_edge);
+                    }
                 }
-                edges.push(new_edge);
                 Self {
                     nodes,
                     edges,
