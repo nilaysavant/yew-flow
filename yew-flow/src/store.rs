@@ -45,7 +45,7 @@ pub enum InteractionMode {
     /// No interaction mode.
     None,
     /// Node drag mode. Pass `node_id` of node being dragged.
-    NodeDrag(usize),
+    NodeDrag,
     /// New Edge drag mode.
     NewEdgeDrag,
 }
