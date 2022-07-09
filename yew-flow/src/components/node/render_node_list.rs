@@ -33,16 +33,18 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         let viewport = Viewport::new(container_ref);
         Callback::from(move |e: MouseEvent| {
             if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
-                let x = viewport.relative_x_pos_from_abs(e.page_x(), Some(NODE_WIDTH));
-                let y = viewport.relative_y_pos_from_abs(e.page_y(), Some(NODE_HEIGHT));
                 match store.interaction_mode {
                     InteractionMode::None => {
                         // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
                     InteractionMode::NodeDrag(_) => {
+                        let x = viewport.relative_x_pos_from_abs(e.page_x(), Some(NODE_WIDTH));
+                        let y = viewport.relative_y_pos_from_abs(e.page_y(), Some(NODE_HEIGHT));
                         store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
                     InteractionMode::NewEdgeDrag => {
+                        let x = viewport.relative_x_pos_from_abs(e.page_x(), None);
+                        let y = viewport.relative_y_pos_from_abs(e.page_y(), None);
                         store.dispatch(WorkspaceAction::DragEdge(DragEdgeCmd { x2: x, y2: y }))
                     }
                 }
