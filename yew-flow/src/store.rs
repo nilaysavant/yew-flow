@@ -219,6 +219,8 @@ impl Reducible for WorkspaceStore {
                     if let Some(edge) = edges.last_mut() {
                         match from_connector {
                             Connector::Input => {
+                                // not sure why its vice versa (will have to figure this out)
+                                // its supp to be assigned to x2,y2 and for output it should be x1,y1
                                 edge.x1 = x;
                                 edge.y1 = y;
                             }
