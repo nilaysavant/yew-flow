@@ -50,7 +50,22 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             }
         })
     };
-
+    let on_container_mouse_up = {
+        let store = store.clone();
+        Callback::from(move |e: MouseEvent| {
+            match store.interaction_mode {
+                crate::store::InteractionMode::None => {
+                    // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                }
+                crate::store::InteractionMode::NodeDrag(_) => {
+                    store.dispatch(WorkspaceAction::NodeDragDeactivate)
+                }
+                crate::store::InteractionMode::NewEdgeDrag => {
+                    store.dispatch(WorkspaceAction::NewEdgeDragDeactivate)
+                }
+            }
+        })
+    };
     let on_node_mouse_down = use_ref(|| {
         let dispatcher = dispatcher.clone();
         Callback::from(move |node: Node| {
@@ -168,6 +183,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                 )}
                 style={format!("width: 100%; height: 400px;")}
                 onmousemove={on_container_mouse_move}
+                onmouseup={on_container_mouse_up}
             >
                 {render_nodes}
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
