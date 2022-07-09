@@ -191,6 +191,7 @@ impl Reducible for WorkspaceStore {
             }
             WorkspaceAction::NewEdgeDragDeactivate => {
                 interaction_mode = InteractionMode::None;
+                edges.pop();
                 Self {
                     nodes,
                     edges,
