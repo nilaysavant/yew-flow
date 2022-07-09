@@ -170,19 +170,18 @@ impl Reducible for WorkspaceStore {
                 .into()
             }
             WorkspaceAction::NewEdgeDragActivate(NewEdgeDragActivateCmd { x1, y1 }) => {
-                if let InteractionMode::NewEdgeDrag = interaction_mode {
-                    let mut new_edge = Edge {
-                        x1,
-                        y1,
-                        x2: x1,
-                        y2: y1,
-                        ..Default::default()
-                    };
-                    if let Some(edge) = edges.last() {
-                        new_edge.id = edge.id + 1;
-                    }
-                    edges.push(new_edge);
+                interaction_mode = InteractionMode::NewEdgeDrag;
+                let mut new_edge = Edge {
+                    x1,
+                    y1,
+                    x2: x1,
+                    y2: y1,
+                    ..Default::default()
+                };
+                if let Some(edge) = edges.last() {
+                    new_edge.id = edge.id + 1;
                 }
+                edges.push(new_edge);
                 Self {
                     nodes,
                     edges,
