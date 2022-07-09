@@ -26,6 +26,8 @@ pub struct ActiveNodeMoveCmd {
 ///
 /// Actions to be dispatched to `WorkspaceStore`.
 pub enum WorkspaceAction {
+    /// Init/Re-init store
+    Init,
     /// When active node needs to be moved.
     ActiveNodeMove(ActiveNodeMoveCmd),
     /// When node drag needs to be activated.
@@ -110,6 +112,7 @@ impl Reducible for WorkspaceStore {
         let mut nodes = self.nodes.clone();
         let mut interaction_mode = self.interaction_mode.clone();
         match action {
+            WorkspaceAction::Init => Self::default().into(),
             WorkspaceAction::ActiveNodeMove(ActiveNodeMoveCmd { x, y }) => {
                 if let InteractionMode::NodeDrag(id) = interaction_mode {
                     let active_node = nodes.iter_mut().find(|n| n.id == id);
