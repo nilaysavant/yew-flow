@@ -13,12 +13,6 @@ use crate::{
     constants::{NODE_HEIGHT, NODE_WIDTH},
 };
 
-pub struct NodeMoveCmd {
-    pub id: usize,
-    pub x: i32,
-    pub y: i32,
-}
-
 pub struct DragNodeCmd {
     pub x: i32,
     pub y: i32,
@@ -40,20 +34,27 @@ pub struct NewEdgeDragActivateCmd {
     pub from_reference: NodeRef,
 }
 
+pub struct DragEdgeCmd {
+    pub x2: i32,
+    pub y2: i32,
+}
+
 /// # Yew Flow Workspace Action
 ///
 /// Actions to be dispatched to `WorkspaceStore`.
 pub enum WorkspaceAction {
     /// Init/Re-init store
     Init,
-    /// When active node needs to be moved.
-    DragNode(DragNodeCmd),
     /// When node drag needs to be activated.
     NodeDragActivate(usize),
+    /// When node needs to be dragged.
+    DragNode(DragNodeCmd),
     /// When node drag needs to be deactivated.
     NodeDragDeactivate,
     /// When new edge drag needs to be activated.
     NewEdgeDragActivate(NewEdgeDragActivateCmd),
+    /// When new edge needs to be dragged out.
+    DragEdge(DragEdgeCmd),
     /// When new edge drag needs to be deactivated.
     NewEdgeDragDeactivate,
 }
@@ -191,6 +192,20 @@ impl Reducible for WorkspaceStore {
                             new_edge.id = edge.id + 1;
                         }
                         edges.push(new_edge);
+                    }
+                }
+                Self {
+                    nodes,
+                    edges,
+                    interaction_mode,
+                }
+                .into()
+            }
+            WorkspaceAction::DragEdge(DragEdgeCmd { x2, y2 }) => {
+                if let InteractionMode::NewEdgeDrag = interaction_mode {
+                    if let Some(edge) = edges.last_mut() {
+                        edge.x2 = x2;
+                        edge.y2 = y2;
                     }
                 }
                 Self {

@@ -10,7 +10,7 @@ use crate::{
         viewport::models::Viewport,
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
-    store::{DragNodeCmd, NewEdgeDragActivateCmd, WorkspaceAction, WorkspaceStore},
+    store::{DragEdgeCmd, DragNodeCmd, NewEdgeDragActivateCmd, WorkspaceAction, WorkspaceStore},
 };
 
 use super::{
@@ -44,7 +44,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                         store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
                     crate::store::InteractionMode::NewEdgeDrag => {
-                        store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                        store.dispatch(WorkspaceAction::DragEdge(DragEdgeCmd { x2: x, y2: y }))
                     }
                 }
             }
