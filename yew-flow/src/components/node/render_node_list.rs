@@ -133,44 +133,11 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
 
     let render_edges = {
         let container_ref = container_ref.clone();
-        let viewport = Viewport::new(container_ref);
-        let auto_id = Rc::new(RefCell::new(0..));
         store
-            .nodes
+            .edges
             .clone()
             .iter()
-            .zip(store.nodes.clone().iter().skip(1))
-            .map(|(node1, node2)| {
-                // Get x and y for Node1 output
-                let (x1, y1) = node1.outputs[1]
-                    .reference
-                    .cast::<Element>()
-                    .map_or((0, 0), |elm| {
-                        let rect = elm.get_bounding_client_rect();
-                        // Convert from abs pos to relative wrt viewport
-                        let x = viewport.relative_x_pos_from_abs(rect.x() as i32, None);
-                        let y = viewport.relative_y_pos_from_abs(rect.y() as i32, None) + 4; // minor adjustments for precision
-                        (x, y)
-                    });
-                // Get x and y for Node2 input
-                let (x2, y2) = node2.inputs[1]
-                    .reference
-                    .cast::<Element>()
-                    .map_or((0, 0), |elm| {
-                        let rect = elm.get_bounding_client_rect();
-                        // Convert from abs pos to relative wrt viewport
-                        let x = viewport.relative_x_pos_from_abs(rect.x() as i32, None);
-                        let y = viewport.relative_y_pos_from_abs(rect.y() as i32, None) + 4; // minor adjustments for precision
-                        (x, y)
-                    });
-                let edge = Edge {
-                    id: auto_id.clone().borrow_mut().next().unwrap(),
-                    color: Hsl::new(0., 100., 100., Some(0.8)),
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                };
+            .map(|edge| {
                 html! {
                     <RenderEdge
                         edge={edge.clone()}
