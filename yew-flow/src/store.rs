@@ -219,12 +219,12 @@ impl Reducible for WorkspaceStore {
                     if let Some(edge) = edges.last_mut() {
                         match from_connector {
                             Connector::Input => {
-                                edge.x2 = x;
-                                edge.y2 = y;
-                            }
-                            Connector::Output => {
                                 edge.x1 = x;
                                 edge.y1 = y;
+                            }
+                            Connector::Output => {
+                                edge.x2 = x;
+                                edge.y2 = y;
                             }
                         }
                     }
