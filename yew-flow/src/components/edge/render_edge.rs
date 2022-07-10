@@ -20,9 +20,9 @@ pub fn render_edge(RenderEdgeProps { edge }: &RenderEdgeProps) -> Html {
         color,
     } = edge;
 
-    let sx1 = x1 + (NODE_WIDTH / 2);
+    let sx1 = x1 + (NODE_WIDTH / 2.);
     let sy1 = y1;
-    let sx2 = (x2 - (NODE_WIDTH / 2)).max(0);
+    let sx2 = (x2 - (NODE_WIDTH / 2.)).max(0.);
     let sy2 = y2;
 
     html! {

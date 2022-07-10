@@ -32,19 +32,21 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         let store = store.clone();
         let viewport = Viewport::new(container_ref);
         Callback::from(move |e: MouseEvent| {
-            if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
+            if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
                 match store.interaction_mode {
                     InteractionMode::None => {
                         // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
                     InteractionMode::NodeDrag(_) => {
-                        let x = viewport.relative_x_pos_from_abs(e.page_x(), Some(NODE_WIDTH));
-                        let y = viewport.relative_y_pos_from_abs(e.page_y(), Some(NODE_HEIGHT));
+                        let x =
+                            viewport.relative_x_pos_from_abs(e.page_x().into(), Some(NODE_WIDTH));
+                        let y =
+                            viewport.relative_y_pos_from_abs(e.page_y().into(), Some(NODE_HEIGHT));
                         store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
                     InteractionMode::NewEdgeDrag(_) => {
-                        let x = viewport.relative_x_pos_from_abs(e.page_x(), None);
-                        let y = viewport.relative_y_pos_from_abs(e.page_y(), None);
+                        let x = viewport.relative_x_pos_from_abs(e.page_x().into(), None);
+                        let y = viewport.relative_y_pos_from_abs(e.page_y().into(), None);
                         store.dispatch(WorkspaceAction::DragEdge(DragEdgeCmd { x, y }))
                     }
                 }

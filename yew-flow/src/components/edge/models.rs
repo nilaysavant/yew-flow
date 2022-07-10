@@ -1,18 +1,20 @@
 use colorsys::Hsl;
 use yew::prelude::*;
 
+use crate::types::standard_unit::StandardUnit;
+
 /// Edge
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub struct Edge {
     pub id: usize,
     /// From (x1, y1) coordinate
-    pub x1: i32,
+    pub x1: StandardUnit,
     /// From (x1, y1) coordinate
-    pub y1: i32,
+    pub y1: StandardUnit,
     /// To (x2, y2) coordinate
-    pub x2: i32,
+    pub x2: StandardUnit,
     /// To (x2, y2) coordinate
-    pub y2: i32,
+    pub y2: StandardUnit,
     pub color: Hsl,
 }
 

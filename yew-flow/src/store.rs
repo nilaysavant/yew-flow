@@ -11,11 +11,12 @@ use crate::{
         viewport::models::Viewport,
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
+    types::standard_unit::StandardUnit,
 };
 
 pub struct DragNodeCmd {
-    pub x: i32,
-    pub y: i32,
+    pub x: StandardUnit,
+    pub y: StandardUnit,
 }
 
 /// # Node Connectors
@@ -45,9 +46,9 @@ pub struct NewEdgeDragDeactivateCmd {
 
 pub struct DragEdgeCmd {
     // x cord to which dragged edge is ending.
-    pub x: i32,
+    pub x: StandardUnit,
     // y cord to which dragged edge is ending.
-    pub y: i32,
+    pub y: StandardUnit,
 }
 
 /// # Yew Flow Workspace Action
@@ -114,8 +115,8 @@ impl Default for WorkspaceStore {
                     Node {
                         id,
                         title: format!("Node {}", id),
-                        x: ((NODE_WIDTH as usize + 10) * i) as i32,
-                        y: ((NODE_HEIGHT as usize + 10) * j) as i32,
+                        x: ((NODE_WIDTH as usize + 10) * i) as StandardUnit,
+                        y: ((NODE_HEIGHT as usize + 10) * j) as StandardUnit,
                         color,
                         inputs: (0..3)
                             .into_iter()
@@ -193,9 +194,9 @@ impl Reducible for WorkspaceStore {
             }) => {
                 interaction_mode = InteractionMode::NewEdgeDrag(NewEdgeDragMode { from_connector });
                 if let Some(elm) = from_reference.cast::<Element>() {
-                    if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
-                        let x1 = elm.get_bounding_client_rect().x() as i32;
-                        let y1 = elm.get_bounding_client_rect().y() as i32;
+                    if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
+                        let x1 = elm.get_bounding_client_rect().x() as StandardUnit;
+                        let y1 = elm.get_bounding_client_rect().y() as StandardUnit;
                         let x1 = viewport.relative_x_pos_from_abs(x1, None);
                         let y1 = viewport.relative_y_pos_from_abs(y1, None);
                         let mut new_edge = Edge {
@@ -254,9 +255,9 @@ impl Reducible for WorkspaceStore {
                     if let Some(to_reference) = to_reference {
                         if let Some(elm) = to_reference.cast::<Element>() {
                             if let Some(viewport) = viewport {
-                                if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
-                                    let x = elm.get_bounding_client_rect().x() as i32;
-                                    let y = elm.get_bounding_client_rect().y() as i32;
+                                if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
+                                    let x = elm.get_bounding_client_rect().x() as StandardUnit;
+                                    let y = elm.get_bounding_client_rect().y() as StandardUnit;
                                     let x = viewport.relative_x_pos_from_abs(x, None);
                                     let y = viewport.relative_y_pos_from_abs(y, None);
                                     if let Some(edge) = edges.last_mut() {

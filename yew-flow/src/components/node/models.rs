@@ -1,6 +1,8 @@
 use colorsys::Hsl;
 use yew::prelude::*;
 
+use crate::types::standard_unit::StandardUnit;
+
 #[derive(Clone, PartialEq, Debug)]
 pub struct NodeInput {
     pub id: String,
@@ -17,8 +19,8 @@ pub struct NodeOutput {
 pub struct Node {
     pub id: usize,
     pub title: String,
-    pub x: i32,
-    pub y: i32,
+    pub x: StandardUnit,
+    pub y: StandardUnit,
     pub color: Hsl,
     pub inputs: Vec<NodeInput>,
     pub outputs: Vec<NodeOutput>,

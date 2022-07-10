@@ -1,4 +1,6 @@
+use crate::types::standard_unit::StandardUnit;
+
 /// Width of the node.
-pub const NODE_WIDTH: i32 = 150;
+pub const NODE_WIDTH: StandardUnit = 150.;
 /// Height of the node.
-pub const NODE_HEIGHT: i32 = 60;
+pub const NODE_HEIGHT: StandardUnit = 60.;
