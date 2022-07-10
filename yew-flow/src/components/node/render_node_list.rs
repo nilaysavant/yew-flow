@@ -1,11 +1,9 @@
-use std::borrow::Borrow;
-
 use yew::prelude::*;
 
 use crate::{
     components::{
         edge::{models::Edge, render_edge::RenderEdge},
-        viewport::models::Viewport,
+        viewport::{self, models::Viewport},
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
     store::{
@@ -27,7 +25,6 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     let container_ref = use_node_ref();
     let store = use_reducer(WorkspaceStore::default);
     let dispatcher = store.dispatcher();
-    let use_effect_executed_ref = use_ref(|| false);
     log::info!("store.interaction_mode: {:?}", store.interaction_mode);
 
     let on_container_mouse_move = {
@@ -186,14 +183,19 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
 
     {
         let container_ref = container_ref.clone();
-        let viewport = Viewport::new(container_ref);
         let dispatcher = dispatcher.clone();
-        use_effect(move || {
-            if *use_effect_executed_ref {
-                dispatcher.dispatch(WorkspaceAction::Init(viewport));
-            }
-            || ()
-        })
+        use_effect_with_deps(
+            // Re-run this on every change of container_ref
+            move |container_ref| {
+                let viewport = Viewport::new(container_ref.clone());
+                if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
+                    // Re-init the workspace as container/viewport has changed
+                    dispatcher.dispatch(WorkspaceAction::Init(viewport.clone()));
+                }
+                || ()
+            },
+            container_ref,
+        )
     }
 
     html! {
