@@ -10,4 +10,4 @@ yew-flow = { path = "../yew-flow" }
 log = "0.4"
 stylist = { version = "0.10", features = ["yew_integration"]}
 wasm-logger = "0.2.0"
-yew = "0.19"
+yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }

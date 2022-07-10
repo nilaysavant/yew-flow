@@ -7,13 +7,13 @@ use super::models::{Node, NodeInput, NodeOutput};
 #[derive(Clone, Properties, PartialEq)]
 pub struct RenderNodeProps {
     pub node: Node,
-    pub on_mouse_down: std::rc::Rc<Callback<Node>>,
+    pub on_mouse_down: Callback<Node>,
     pub on_input_mouse_down: Callback<NodeInput>,
     pub on_input_mouse_up: Callback<NodeInput>,
     pub on_output_mouse_down: Callback<NodeOutput>,
     pub on_output_mouse_up: Callback<NodeOutput>,
     pub on_mouse_up: Callback<Node>,
-    pub on_click: std::rc::Rc<Callback<Node>>,
+    pub on_click: Callback<Node>,
 }
 
 #[function_component(RenderNode)]
