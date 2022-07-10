@@ -5,7 +5,7 @@ use crate::types::standard_unit::StandardUnit;
 
 /// Used to store container dimensions like
 /// **offsets**, **width**, **height** etc
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ContainerDimensions {
     pub offset_left: StandardUnit,
     pub offset_top: StandardUnit,
@@ -27,7 +27,7 @@ impl Default for ContainerDimensions {
 /// # Yew Flow Viewport Model
 ///
 /// Defines `yew-flow` viewport configuration
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Viewport {
     /// Viewport element reference
     pub reference: NodeRef,

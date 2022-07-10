@@ -34,7 +34,6 @@ pub enum Connector {
 }
 
 pub struct NewEdgeDragActivateCmd {
-    pub viewport: Viewport,
     /// reference to the from connector
     pub from_reference: NodeRef,
     /// Type of from connector
@@ -42,7 +41,6 @@ pub struct NewEdgeDragActivateCmd {
 }
 
 pub struct NewEdgeDragDeactivateCmd {
-    pub viewport: Option<Viewport>,
     /// reference to the to connector
     pub to_reference: Option<NodeRef>,
 }
@@ -59,7 +57,7 @@ pub struct DragEdgeCmd {
 /// Actions to be dispatched to `WorkspaceStore`.
 pub enum WorkspaceAction {
     /// Init/Re-init store
-    Init,
+    Init(Viewport),
     /// When node drag needs to be activated.
     NodeDragActivate(StandardId),
     /// When node needs to be dragged.
@@ -98,6 +96,7 @@ pub enum InteractionMode {
 /// Main state/store for `yew-flow`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct WorkspaceStore {
+    pub viewport: Option<Viewport>,
     pub nodes: Vec<Node>,
     pub edges: Vec<Edge>,
     pub interaction_mode: InteractionMode,
@@ -141,6 +140,7 @@ impl Default for WorkspaceStore {
             .flatten()
             .collect::<Vec<Node>>();
         Self {
+            viewport: None,
             nodes,
             edges: vec![],
             interaction_mode: InteractionMode::None,
@@ -152,20 +152,36 @@ impl Reducible for WorkspaceStore {
     type Action = WorkspaceAction;
 
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
+        let mut viewport = self.viewport.clone();
         let mut nodes = self.nodes.clone();
         let mut edges = self.edges.clone();
         let mut interaction_mode = self.interaction_mode.clone();
         match action {
-            WorkspaceAction::Init => Self::default().into(),
+            WorkspaceAction::Init(viewport) => Self {
+                viewport: Some(viewport),
+                ..Default::default()
+            }
+            .into(),
             WorkspaceAction::DragNode(DragNodeCmd { x, y }) => {
                 if let InteractionMode::NodeDrag(ref id) = interaction_mode {
                     let active_node = nodes.iter_mut().find(|n| n.id == *id);
                     if let Some(active_node) = active_node {
-                        active_node.x = x;
+                        active_node.x = x; // assign new coord values
                         active_node.y = y;
+                        let Node {
+                            inputs, outputs, ..
+                        } = active_node;
+                        for input in inputs.iter() {
+                            edges.iter_mut().for_each(|edge| {
+                                if edge.from_input == Some(input.clone().id) {
+                                    // edge.x1 = input.reference.
+                                }
+                            });
+                        }
                     }
                 }
                 Self {
+                    viewport,
                     nodes,
                     edges,
                     interaction_mode,
@@ -175,6 +191,7 @@ impl Reducible for WorkspaceStore {
             WorkspaceAction::NodeDragActivate(id) => {
                 interaction_mode = InteractionMode::NodeDrag(id);
                 Self {
+                    viewport,
                     nodes,
                     edges,
                     interaction_mode,
@@ -184,6 +201,7 @@ impl Reducible for WorkspaceStore {
             WorkspaceAction::NodeDragDeactivate => {
                 interaction_mode = InteractionMode::None;
                 Self {
+                    viewport,
                     nodes,
                     edges,
                     interaction_mode,
@@ -191,28 +209,30 @@ impl Reducible for WorkspaceStore {
                 .into()
             }
             WorkspaceAction::NewEdgeDragActivate(NewEdgeDragActivateCmd {
-                viewport,
                 from_reference,
                 from_connector,
             }) => {
                 interaction_mode = InteractionMode::NewEdgeDrag(NewEdgeDragMode { from_connector });
                 if let Some(elm) = from_reference.cast::<Element>() {
-                    if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
-                        let x1 = elm.get_bounding_client_rect().x() as StandardUnit;
-                        let y1 = elm.get_bounding_client_rect().y() as StandardUnit;
-                        let x1 = viewport.relative_x_pos_from_abs(x1, None);
-                        let y1 = viewport.relative_y_pos_from_abs(y1, None);
-                        let mut new_edge = Edge {
-                            x1,
-                            y1,
-                            x2: x1,
-                            y2: y1,
-                            ..Default::default()
-                        };
-                        edges.push(new_edge);
+                    if let Some(ref viewport) = viewport {
+                        if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
+                            let x1 = elm.get_bounding_client_rect().x() as StandardUnit;
+                            let y1 = elm.get_bounding_client_rect().y() as StandardUnit;
+                            let x1 = viewport.relative_x_pos_from_abs(x1, None);
+                            let y1 = viewport.relative_y_pos_from_abs(y1, None);
+                            let mut new_edge = Edge {
+                                x1,
+                                y1,
+                                x2: x1,
+                                y2: y1,
+                                ..Default::default()
+                            };
+                            edges.push(new_edge);
+                        }
                     }
                 }
                 Self {
+                    viewport,
                     nodes,
                     edges,
                     interaction_mode,
@@ -239,22 +259,20 @@ impl Reducible for WorkspaceStore {
                     }
                 }
                 Self {
+                    viewport,
                     nodes,
                     edges,
                     interaction_mode,
                 }
                 .into()
             }
-            WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
-                viewport,
-                to_reference,
-            }) => {
+            WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd { to_reference }) => {
                 if let InteractionMode::NewEdgeDrag(NewEdgeDragMode { ref from_connector }) =
                     interaction_mode
                 {
                     if let Some(to_reference) = to_reference {
                         if let Some(elm) = to_reference.cast::<Element>() {
-                            if let Some(viewport) = viewport {
+                            if let Some(ref viewport) = viewport {
                                 if viewport.dimensions.width > 0. && viewport.dimensions.height > 0.
                                 {
                                     let x = elm.get_bounding_client_rect().x() as StandardUnit;
@@ -300,6 +318,7 @@ impl Reducible for WorkspaceStore {
                 }
                 interaction_mode = InteractionMode::None; // reset interaction mode
                 Self {
+                    viewport,
                     nodes,
                     edges,
                     interaction_mode,

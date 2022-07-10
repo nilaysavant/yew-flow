@@ -10,6 +10,10 @@ use crate::types::{
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub struct Edge {
     pub id: StandardId,
+    /// From input id.
+    pub from_input: Option<String>,
+    /// To output id.
+    pub to_output: Option<String>,
     /// From (x1, y1) coordinate
     pub x1: StandardUnit,
     /// From (x1, y1) coordinate
@@ -25,6 +29,8 @@ impl Default for Edge {
     fn default() -> Self {
         Self {
             id: StandardId::generate(),
+            from_input: None,
+            to_output: None,
             x1: Default::default(),
             y1: Default::default(),
             x2: Default::default(),
