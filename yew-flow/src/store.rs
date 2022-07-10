@@ -172,12 +172,11 @@ impl Reducible for WorkspaceStore {
                             inputs, outputs, ..
                         } = active_node;
                         if let Some(ref viewport) = viewport {
-                            log::info!("inputs: {:?}, edges: {:?}", inputs, edges);
-                            for input in inputs.iter() {
+                            for output in outputs.iter() {
                                 edges.iter_mut().for_each(|edge| {
-                                    if edge.from_output == Some(input.id.clone()) {
+                                    if edge.from_output == Some(output.id.clone()) {
                                         log::info!("edge: {:?}", edge);
-                                        if let Some(elm) = input.reference.cast::<Element>() {
+                                        if let Some(elm) = output.reference.cast::<Element>() {
                                             let x = elm.get_bounding_client_rect().x();
                                             let y = elm.get_bounding_client_rect().y();
                                             let x = viewport.relative_x_pos_from_abs(x, None);
