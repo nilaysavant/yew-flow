@@ -124,15 +124,15 @@ impl Default for WorkspaceStore {
                         color,
                         inputs: (0..3)
                             .into_iter()
-                            .map(|_| NodeInput {
-                                id: StandardId::generate(),
+                            .map(|input| NodeInput {
+                                id: format!("node-{}--input-{}", id, input),
                                 reference: NodeRef::default(),
                             })
                             .collect(),
                         outputs: (0..3)
                             .into_iter()
-                            .map(|_| NodeOutput {
-                                id: StandardId::generate(),
+                            .map(|output| NodeOutput {
+                                id: format!("node-{}--output-{}", id, output),
                                 reference: NodeRef::default(),
                             })
                             .collect(),
@@ -144,7 +144,15 @@ impl Default for WorkspaceStore {
         Self {
             viewport: None,
             nodes,
-            edges: vec![],
+            edges: (0..2)
+                .into_iter()
+                .map(|i| Edge {
+                    id: StandardId::generate(),
+                    from_output: Some(format!("node-{}--output-{}", i, 0)),
+                    to_input: Some(format!("node-{}--input-{}", i + 1, 0)),
+                    ..Default::default()
+                })
+                .collect(),
             interaction_mode: InteractionMode::None,
         }
     }
