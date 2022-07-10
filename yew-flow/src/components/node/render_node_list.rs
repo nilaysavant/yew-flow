@@ -108,7 +108,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
                 NewEdgeDragActivateCmd {
                     from_reference: input.reference,
-                    from_connector: Connector::Input,
+                    from_connector: Connector::Input(input.id),
                 },
             ))
         })
@@ -129,7 +129,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
                 NewEdgeDragActivateCmd {
                     from_reference: output.reference,
-                    from_connector: Connector::Output,
+                    from_connector: Connector::Output(output.id),
                 },
             ))
         })

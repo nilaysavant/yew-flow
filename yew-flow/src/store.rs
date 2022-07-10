@@ -27,10 +27,10 @@ pub struct DragNodeCmd {
 /// Node connectors. Either input or output.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Connector {
-    /// Input connector.
-    Input,
-    /// Output connector.
-    Output,
+    /// Input connector. Takes id of the input.
+    Input(StandardId),
+    /// Output connector. Takes id of the output.
+    Output(StandardId),
 }
 
 pub struct NewEdgeDragActivateCmd {
@@ -171,12 +171,21 @@ impl Reducible for WorkspaceStore {
                         let Node {
                             inputs, outputs, ..
                         } = active_node;
-                        for input in inputs.iter() {
-                            edges.iter_mut().for_each(|edge| {
-                                if edge.from_input == Some(input.clone().id) {
-                                    // edge.x1 = input.reference.
-                                }
-                            });
+                        if let Some(ref viewport) = viewport {
+                            for input in inputs.iter() {
+                                edges.iter_mut().for_each(|edge| {
+                                    if edge.from_input == Some(input.clone().id) {
+                                        if let Some(elm) = input.reference.cast::<Element>() {
+                                            let x1 = elm.get_bounding_client_rect().x();
+                                            let y1 = elm.get_bounding_client_rect().y();
+                                            let x1 = viewport.relative_x_pos_from_abs(x1, None);
+                                            let y1 = viewport.relative_y_pos_from_abs(y1, None);
+                                            edge.x1 = x1;
+                                            edge.y1 = y1;
+                                        }
+                                    }
+                                });
+                            }
                         }
                     }
                 }
@@ -212,22 +221,38 @@ impl Reducible for WorkspaceStore {
                 from_reference,
                 from_connector,
             }) => {
-                interaction_mode = InteractionMode::NewEdgeDrag(NewEdgeDragMode { from_connector });
+                interaction_mode = InteractionMode::NewEdgeDrag(NewEdgeDragMode {
+                    from_connector: from_connector.clone(),
+                });
                 if let Some(elm) = from_reference.cast::<Element>() {
                     if let Some(ref viewport) = viewport {
                         if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
-                            let x1 = elm.get_bounding_client_rect().x() as StandardUnit;
-                            let y1 = elm.get_bounding_client_rect().y() as StandardUnit;
-                            let x1 = viewport.relative_x_pos_from_abs(x1, None);
-                            let y1 = viewport.relative_y_pos_from_abs(y1, None);
-                            let mut new_edge = Edge {
-                                x1,
-                                y1,
-                                x2: x1,
-                                y2: y1,
+                            let x = elm.get_bounding_client_rect().x();
+                            let y = elm.get_bounding_client_rect().y();
+                            let x = viewport.relative_x_pos_from_abs(x, None);
+                            let y = viewport.relative_y_pos_from_abs(y, None);
+                            let mut edge = Edge {
+                                x1: x,
+                                y1: y,
+                                x2: x,
+                                y2: y,
                                 ..Default::default()
                             };
-                            edges.push(new_edge);
+                            match from_connector {
+                                Connector::Input(id) => {
+                                    // not sure why its vice versa (will have to figure this out)
+                                    // its supp to be assigned to x2,y2 and for output it should be x1,y1
+                                    edge.x1 = x;
+                                    edge.y1 = y;
+                                    edge.from_input = Some(id.clone());
+                                }
+                                Connector::Output(id) => {
+                                    edge.x2 = x;
+                                    edge.y2 = y;
+                                    edge.to_output = Some(id.clone());
+                                }
+                            }
+                            edges.push(edge);
                         }
                     }
                 }
@@ -245,13 +270,13 @@ impl Reducible for WorkspaceStore {
                 {
                     if let Some(edge) = edges.last_mut() {
                         match from_connector {
-                            Connector::Input => {
+                            Connector::Input(id) => {
                                 // not sure why its vice versa (will have to figure this out)
                                 // its supp to be assigned to x2,y2 and for output it should be x1,y1
                                 edge.x1 = x;
                                 edge.y1 = y;
                             }
-                            Connector::Output => {
+                            Connector::Output(id) => {
                                 edge.x2 = x;
                                 edge.y2 = y;
                             }
@@ -281,15 +306,17 @@ impl Reducible for WorkspaceStore {
                                     let y = viewport.relative_y_pos_from_abs(y, None);
                                     if let Some(edge) = edges.last_mut() {
                                         match from_connector {
-                                            Connector::Input => {
+                                            Connector::Input(id) => {
                                                 // not sure why its vice versa (will have to figure this out)
                                                 // its supp to be assigned to x2,y2 and for output it should be x1,y1
                                                 edge.x1 = x;
                                                 edge.y1 = y;
+                                                edge.from_input = Some(id.clone());
                                             }
-                                            Connector::Output => {
+                                            Connector::Output(id) => {
                                                 edge.x2 = x;
                                                 edge.y2 = y;
+                                                edge.to_output = Some(id.clone());
                                             }
                                         }
                                     } else {
