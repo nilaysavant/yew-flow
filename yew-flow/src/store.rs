@@ -167,11 +167,47 @@ impl Reducible for WorkspaceStore {
         let mut edges = self.edges.clone();
         let mut interaction_mode = self.interaction_mode.clone();
         match action {
-            WorkspaceAction::Init(viewport) => Self {
-                viewport: Some(viewport),
-                ..Default::default()
+            WorkspaceAction::Init(viewport) => {
+                nodes.iter().for_each(|node| {
+                    let Node {
+                        inputs, outputs, ..
+                    } = node;
+                    for output in outputs.iter() {
+                        edges.iter_mut().for_each(|edge| {
+                            if edge.from_output == Some(output.id.clone()) {
+                                if let Some(elm) = output.reference.cast::<Element>() {
+                                    let x = elm.get_bounding_client_rect().x();
+                                    let y = elm.get_bounding_client_rect().y();
+                                    let x = viewport.relative_x_pos_from_abs(x, None);
+                                    let y = viewport.relative_y_pos_from_abs(y, None);
+                                    edge.x1 = x;
+                                    edge.y1 = y;
+                                }
+                            }
+                        });
+                    }
+                    for input in inputs.iter() {
+                        edges.iter_mut().for_each(|edge| {
+                            if edge.to_input == Some(input.id.clone()) {
+                                if let Some(elm) = input.reference.cast::<Element>() {
+                                    let x = elm.get_bounding_client_rect().x();
+                                    let y = elm.get_bounding_client_rect().y();
+                                    let x = viewport.relative_x_pos_from_abs(x, None);
+                                    let y = viewport.relative_y_pos_from_abs(y, None);
+                                    edge.x2 = x;
+                                    edge.y2 = y;
+                                }
+                            }
+                        });
+                    }
+                });
+                Self {
+                    viewport: Some(viewport),
+                    edges,
+                    ..Default::default()
+                }
+                .into()
             }
-            .into(),
             WorkspaceAction::DragNode(DragNodeCmd { x, y }) => {
                 if let InteractionMode::NodeDrag(ref id) = interaction_mode {
                     let active_node = nodes.iter_mut().find(|n| n.id == *id);
