@@ -13,8 +13,8 @@ pub struct RenderEdgeProps {
 pub fn render_edge(RenderEdgeProps { edge }: &RenderEdgeProps) -> Html {
     let Edge {
         id,
-        from_input,
-        to_output,
+        from_output,
+        to_input,
         x1,
         y1,
         x2,

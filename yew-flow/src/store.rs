@@ -172,9 +172,11 @@ impl Reducible for WorkspaceStore {
                             inputs, outputs, ..
                         } = active_node;
                         if let Some(ref viewport) = viewport {
+                            log::info!("inputs: {:?}, edges: {:?}", inputs, edges);
                             for input in inputs.iter() {
                                 edges.iter_mut().for_each(|edge| {
-                                    if edge.from_input == Some(input.clone().id) {
+                                    if edge.from_output == Some(input.id.clone()) {
+                                        log::info!("edge: {:?}", edge);
                                         if let Some(elm) = input.reference.cast::<Element>() {
                                             let x = elm.get_bounding_client_rect().x();
                                             let y = elm.get_bounding_client_rect().y();
@@ -239,19 +241,18 @@ impl Reducible for WorkspaceStore {
                                 ..Default::default()
                             };
                             match from_connector {
-                                Connector::Input(id) => {
-                                    // not sure why its vice versa (will have to figure this out)
-                                    // its supp to be assigned to x2,y2 and for output it should be x1,y1
+                                Connector::Output(id) => {
                                     edge.x1 = x;
                                     edge.y1 = y;
-                                    edge.from_input = Some(id.clone());
+                                    edge.from_output = Some(id.clone());
                                 }
-                                Connector::Output(id) => {
+                                Connector::Input(id) => {
                                     edge.x2 = x;
                                     edge.y2 = y;
-                                    edge.to_output = Some(id.clone());
+                                    edge.to_input = Some(id.clone());
                                 }
                             }
+                            log::info!("EDGE to be pushed:{:?}", edge);
                             edges.push(edge);
                         }
                     }
@@ -270,15 +271,13 @@ impl Reducible for WorkspaceStore {
                 {
                     if let Some(edge) = edges.last_mut() {
                         match from_connector {
-                            Connector::Input(id) => {
-                                // not sure why its vice versa (will have to figure this out)
-                                // its supp to be assigned to x2,y2 and for output it should be x1,y1
-                                edge.x1 = x;
-                                edge.y1 = y;
-                            }
                             Connector::Output(id) => {
                                 edge.x2 = x;
                                 edge.y2 = y;
+                            }
+                            Connector::Input(id) => {
+                                edge.x1 = x;
+                                edge.y1 = y;
                             }
                         }
                     }
@@ -306,17 +305,15 @@ impl Reducible for WorkspaceStore {
                                     let y = viewport.relative_y_pos_from_abs(y, None);
                                     if let Some(edge) = edges.last_mut() {
                                         match from_connector {
-                                            Connector::Input(id) => {
-                                                // not sure why its vice versa (will have to figure this out)
-                                                // its supp to be assigned to x2,y2 and for output it should be x1,y1
-                                                edge.x1 = x;
-                                                edge.y1 = y;
-                                                edge.from_input = Some(id.clone());
-                                            }
                                             Connector::Output(id) => {
                                                 edge.x2 = x;
                                                 edge.y2 = y;
-                                                edge.to_output = Some(id.clone());
+                                                edge.from_output = Some(id.clone());
+                                            }
+                                            Connector::Input(id) => {
+                                                edge.x1 = x;
+                                                edge.y1 = y;
+                                                edge.to_input = Some(id.clone());
                                             }
                                         }
                                     } else {
