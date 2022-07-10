@@ -37,6 +37,12 @@ pub struct NewEdgeDragActivateCmd {
     pub from_connector: Connector,
 }
 
+pub struct NewEdgeDragDeactivateCmd {
+    pub viewport: Option<Viewport>,
+    /// reference to the to connector
+    pub to_reference: Option<NodeRef>,
+}
+
 pub struct DragEdgeCmd {
     // x cord to which dragged edge is ending.
     pub x: i32,
@@ -61,7 +67,7 @@ pub enum WorkspaceAction {
     /// When new edge needs to be dragged out.
     DragEdge(DragEdgeCmd),
     /// When new edge drag needs to be deactivated.
-    NewEdgeDragDeactivate,
+    NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -238,9 +244,59 @@ impl Reducible for WorkspaceStore {
                 }
                 .into()
             }
-            WorkspaceAction::NewEdgeDragDeactivate => {
-                interaction_mode = InteractionMode::None;
-                edges.pop();
+            WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
+                viewport,
+                to_reference,
+            }) => {
+                if let InteractionMode::NewEdgeDrag(NewEdgeDragMode { ref from_connector }) =
+                    interaction_mode
+                {
+                    if let Some(to_reference) = to_reference {
+                        if let Some(elm) = to_reference.cast::<Element>() {
+                            if let Some(viewport) = viewport {
+                                if viewport.dimensions.width > 0 && viewport.dimensions.height > 0 {
+                                    let x = elm.get_bounding_client_rect().x() as i32;
+                                    let y = elm.get_bounding_client_rect().y() as i32;
+                                    let x = viewport.relative_x_pos_from_abs(x, None);
+                                    let y = viewport.relative_y_pos_from_abs(y, None);
+                                    if let Some(edge) = edges.last_mut() {
+                                        match from_connector {
+                                            Connector::Input => {
+                                                // not sure why its vice versa (will have to figure this out)
+                                                // its supp to be assigned to x2,y2 and for output it should be x1,y1
+                                                edge.x1 = x;
+                                                edge.y1 = y;
+                                            }
+                                            Connector::Output => {
+                                                edge.x2 = x;
+                                                edge.y2 = y;
+                                            }
+                                        }
+                                    } else {
+                                        // remove the temp edge if not connected
+                                        edges.pop();
+                                    }
+                                } else {
+                                    // remove the temp edge if not connected
+                                    edges.pop();
+                                }
+                            } else {
+                                // remove the temp edge if not connected
+                                edges.pop();
+                            }
+                        } else {
+                            // remove the temp edge if not connected
+                            edges.pop();
+                        }
+                    } else {
+                        // remove the temp edge if not connected
+                        edges.pop();
+                    }
+                } else {
+                    // remove the temp edge if not connected
+                    edges.pop();
+                }
+                interaction_mode = InteractionMode::None; // reset interaction mode
                 Self {
                     nodes,
                     edges,
