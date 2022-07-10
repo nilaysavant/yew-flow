@@ -11,6 +11,7 @@ pub struct RenderEdgeProps {
 
 #[function_component(RenderEdge)]
 pub fn render_edge(RenderEdgeProps { edge }: &RenderEdgeProps) -> Html {
+    log::info!("render_edge: {}", edge.id);
     let Edge {
         id,
         from_output,

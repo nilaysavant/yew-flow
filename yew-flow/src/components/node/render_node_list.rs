@@ -25,7 +25,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     let container_ref = use_node_ref();
     let store = use_reducer(WorkspaceStore::default);
     let dispatcher = store.dispatcher();
-    // log::info!("store.interaction_mode: {:?}", store.interaction_mode);
+    log::info!("store.interaction_mode: {:?}", store.interaction_mode);
     // log::info!(
     //     "store.edge[0]: {:?}",
     //     store
@@ -36,45 +36,47 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
 
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
-        let store = store.clone();
+        let dispatcher = dispatcher.clone();
+        let interaction_mode = store.interaction_mode.clone();
         use_callback(
-            move |e: MouseEvent, (container_ref, store)| {
+            move |e: MouseEvent, (container_ref, dispatcher, interaction_mode)| {
                 let viewport = Viewport::new(container_ref.clone());
                 if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
-                    match store.interaction_mode {
+                    match interaction_mode {
                         InteractionMode::None => {
-                            // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                            // dispatcher.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                         }
                         InteractionMode::NodeDrag(_) => {
                             let x = viewport
                                 .relative_x_pos_from_abs(e.page_x().into(), Some(NODE_WIDTH));
                             let y = viewport
                                 .relative_y_pos_from_abs(e.page_y().into(), Some(NODE_HEIGHT));
-                            store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                            dispatcher.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                         }
                         InteractionMode::NewEdgeDrag(_) => {
                             let x = viewport.relative_x_pos_from_abs(e.page_x().into(), None);
                             let y = viewport.relative_y_pos_from_abs(e.page_y().into(), None);
-                            store.dispatch(WorkspaceAction::DragEdge(DragEdgeCmd { x, y }))
+                            dispatcher.dispatch(WorkspaceAction::DragEdge(DragEdgeCmd { x, y }))
                         }
                     }
                 }
             },
-            (container_ref, store),
+            (container_ref, dispatcher, interaction_mode),
         )
     };
     let on_container_mouse_up = {
-        let store = store.clone();
+        let dispatcher = dispatcher.clone();
+        let interaction_mode = store.interaction_mode.clone();
         use_callback(
-            move |e: MouseEvent, store| {
-                match store.interaction_mode {
+            move |_: MouseEvent, (dispatcher, interaction_mode)| {
+                match interaction_mode {
                     InteractionMode::None => {
-                        // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                        // dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
                     InteractionMode::NodeDrag(_) => {
-                        store.dispatch(WorkspaceAction::NodeDragDeactivate)
+                        dispatcher.dispatch(WorkspaceAction::NodeDragDeactivate)
                     }
-                    InteractionMode::NewEdgeDrag(_) => store.dispatch(
+                    InteractionMode::NewEdgeDrag(_) => dispatcher.dispatch(
                         WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
                             to_reference: None,
                             to_connector: None,
@@ -82,7 +84,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     ),
                 }
             },
-            store,
+            (dispatcher, interaction_mode),
         )
     };
     let on_node_mouse_down = {
@@ -95,17 +97,18 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
         )
     };
     let on_node_mouse_up = {
-        let store = store.clone();
+        let dispatcher = dispatcher.clone();
+        let interaction_mode = store.interaction_mode.clone();
         use_callback(
-            move |node: Node, store| {
-                match store.interaction_mode {
+            move |node: Node, (dispatcher, interaction_mode)| {
+                match interaction_mode {
                     InteractionMode::None => {
-                        // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                        // dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                     }
                     InteractionMode::NodeDrag(_) => {
-                        store.dispatch(WorkspaceAction::NodeDragDeactivate)
+                        dispatcher.dispatch(WorkspaceAction::NodeDragDeactivate)
                     }
-                    InteractionMode::NewEdgeDrag(_) => store.dispatch(
+                    InteractionMode::NewEdgeDrag(_) => dispatcher.dispatch(
                         WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
                             to_reference: None,
                             to_connector: None,
@@ -113,7 +116,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     ),
                 }
             },
-            store,
+            (dispatcher, interaction_mode),
         )
     };
     let on_node_click = {
