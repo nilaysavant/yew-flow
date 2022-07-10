@@ -266,7 +266,6 @@ impl Reducible for WorkspaceStore {
                                     edge.to_input = Some(id.clone());
                                 }
                             }
-                            log::info!("EDGE to be pushed:{:?}", edge);
                             edges.push(edge);
                         }
                     }
@@ -332,7 +331,6 @@ impl Reducible for WorkspaceStore {
                                     edge.to_input = Some(id.clone());
                                 }
                             }
-                            log::info!("NewEdgeDragDeactivate -> edge: {:?}", edge);
                         } else {
                             // remove the temp edge if not connected
                             edges.pop();
