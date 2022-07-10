@@ -176,12 +176,12 @@ impl Reducible for WorkspaceStore {
                                 edges.iter_mut().for_each(|edge| {
                                     if edge.from_input == Some(input.clone().id) {
                                         if let Some(elm) = input.reference.cast::<Element>() {
-                                            let x1 = elm.get_bounding_client_rect().x();
-                                            let y1 = elm.get_bounding_client_rect().y();
-                                            let x1 = viewport.relative_x_pos_from_abs(x1, None);
-                                            let y1 = viewport.relative_y_pos_from_abs(y1, None);
-                                            edge.x1 = x1;
-                                            edge.y1 = y1;
+                                            let x = elm.get_bounding_client_rect().x();
+                                            let y = elm.get_bounding_client_rect().y();
+                                            let x = viewport.relative_x_pos_from_abs(x, None);
+                                            let y = viewport.relative_y_pos_from_abs(y, None);
+                                            edge.x1 = x;
+                                            edge.y1 = y;
                                         }
                                     }
                                 });
