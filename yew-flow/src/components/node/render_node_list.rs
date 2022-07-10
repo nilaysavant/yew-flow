@@ -65,98 +65,125 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     };
     let on_container_mouse_up = {
         let store = store.clone();
-        Callback::from(move |e: MouseEvent| {
-            match store.interaction_mode {
-                InteractionMode::None => {
-                    // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+        use_callback(
+            move |e: MouseEvent, store| {
+                match store.interaction_mode {
+                    InteractionMode::None => {
+                        // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                    }
+                    InteractionMode::NodeDrag(_) => {
+                        store.dispatch(WorkspaceAction::NodeDragDeactivate)
+                    }
+                    InteractionMode::NewEdgeDrag(_) => store.dispatch(
+                        WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
+                            to_reference: None,
+                            to_connector: None,
+                        }),
+                    ),
                 }
-                InteractionMode::NodeDrag(_) => store.dispatch(WorkspaceAction::NodeDragDeactivate),
-                InteractionMode::NewEdgeDrag(_) => store.dispatch(
-                    WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
-                        to_reference: None,
-                        to_connector: None,
-                    }),
-                ),
-            }
-        })
+            },
+            store,
+        )
     };
     let on_node_mouse_down = {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |node: Node| {
-            dispatcher.dispatch(WorkspaceAction::NodeDragActivate(node.id))
-        })
+        use_callback(
+            move |node: Node, dispatcher| {
+                dispatcher.dispatch(WorkspaceAction::NodeDragActivate(node.id))
+            },
+            dispatcher,
+        )
     };
     let on_node_mouse_up = {
-        let dispatcher = dispatcher.clone();
         let store = store.clone();
-        Callback::from(move |node: Node| {
-            match store.interaction_mode {
-                InteractionMode::None => {
-                    // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+        use_callback(
+            move |node: Node, store| {
+                match store.interaction_mode {
+                    InteractionMode::None => {
+                        // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                    }
+                    InteractionMode::NodeDrag(_) => {
+                        store.dispatch(WorkspaceAction::NodeDragDeactivate)
+                    }
+                    InteractionMode::NewEdgeDrag(_) => store.dispatch(
+                        WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
+                            to_reference: None,
+                            to_connector: None,
+                        }),
+                    ),
                 }
-                InteractionMode::NodeDrag(_) => store.dispatch(WorkspaceAction::NodeDragDeactivate),
-                InteractionMode::NewEdgeDrag(_) => store.dispatch(
-                    WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
-                        to_reference: None,
-                        to_connector: None,
-                    }),
-                ),
-            }
-        })
+            },
+            store,
+        )
     };
     let on_node_click = {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |node: Node| {
-            // if node.is_active {
-            //     store.dispatch(NodesAction::Deactivate(node.id));
-            // } else {
-            //     store.dispatch(NodesAction::Activate(node.id));
-            // }
-        })
+        use_callback(
+            move |node: Node, _| {
+                // if node.is_active {
+                //     store.dispatch(NodesAction::Deactivate(node.id));
+                // } else {
+                //     store.dispatch(NodesAction::Activate(node.id));
+                // }
+            },
+            (),
+        )
     };
     let on_node_input_mouse_down = {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |input: NodeInput| {
-            dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
-                NewEdgeDragActivateCmd {
-                    from_reference: input.reference,
-                    from_connector: Connector::Input(input.id),
-                },
-            ))
-        })
+        use_callback(
+            move |input: NodeInput, dispatcher| {
+                dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
+                    NewEdgeDragActivateCmd {
+                        from_reference: input.reference,
+                        from_connector: Connector::Input(input.id),
+                    },
+                ))
+            },
+            dispatcher,
+        )
     };
     let on_node_input_mouse_up = {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |input: NodeInput| {
-            dispatcher.dispatch(WorkspaceAction::NewEdgeDragDeactivate(
-                NewEdgeDragDeactivateCmd {
-                    to_reference: Some(input.reference),
-                    to_connector: Some(Connector::Input(input.id)),
-                },
-            ))
-        })
+        use_callback(
+            move |input: NodeInput, dispatcher| {
+                dispatcher.dispatch(WorkspaceAction::NewEdgeDragDeactivate(
+                    NewEdgeDragDeactivateCmd {
+                        to_reference: Some(input.reference),
+                        to_connector: Some(Connector::Input(input.id)),
+                    },
+                ))
+            },
+            dispatcher,
+        )
     };
     let on_node_output_mouse_down = {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |output: NodeOutput| {
-            dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
-                NewEdgeDragActivateCmd {
-                    from_reference: output.reference,
-                    from_connector: Connector::Output(output.id),
-                },
-            ))
-        })
+        use_callback(
+            move |output: NodeOutput, dispatcher| {
+                dispatcher.dispatch(WorkspaceAction::NewEdgeDragActivate(
+                    NewEdgeDragActivateCmd {
+                        from_reference: output.reference,
+                        from_connector: Connector::Output(output.id),
+                    },
+                ))
+            },
+            dispatcher,
+        )
     };
     let on_node_output_mouse_up = {
         let dispatcher = dispatcher.clone();
-        Callback::from(move |output: NodeOutput| {
-            dispatcher.dispatch(WorkspaceAction::NewEdgeDragDeactivate(
-                NewEdgeDragDeactivateCmd {
-                    to_reference: Some(output.reference),
-                    to_connector: Some(Connector::Output(output.id)),
-                },
-            ))
-        })
+        use_callback(
+            move |output: NodeOutput, dispatcher| {
+                dispatcher.dispatch(WorkspaceAction::NewEdgeDragDeactivate(
+                    NewEdgeDragDeactivateCmd {
+                        to_reference: Some(output.reference),
+                        to_connector: Some(Connector::Output(output.id)),
+                    },
+                ))
+            },
+            dispatcher,
+        )
     };
 
     let render_nodes = {
