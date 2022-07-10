@@ -43,6 +43,8 @@ pub struct NewEdgeDragActivateCmd {
 pub struct NewEdgeDragDeactivateCmd {
     /// reference to the to connector
     pub to_reference: Option<NodeRef>,
+    /// Type of to connector
+    pub to_connector: Option<Connector>,
 }
 
 pub struct DragEdgeCmd {
@@ -302,44 +304,35 @@ impl Reducible for WorkspaceStore {
                 }
                 .into()
             }
-            WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd { to_reference }) => {
-                if let InteractionMode::NewEdgeDrag(NewEdgeDragMode { ref from_connector }) =
-                    interaction_mode
-                {
-                    if let Some(to_reference) = to_reference {
-                        if let Some(elm) = to_reference.cast::<Element>() {
-                            if let Some(ref viewport) = viewport {
-                                if viewport.dimensions.width > 0. && viewport.dimensions.height > 0.
-                                {
-                                    let x = elm.get_bounding_client_rect().x() as StandardUnit;
-                                    let y = elm.get_bounding_client_rect().y() as StandardUnit;
-                                    let x = viewport.relative_x_pos_from_abs(x, None);
-                                    let y = viewport.relative_y_pos_from_abs(y, None);
-                                    if let Some(edge) = edges.last_mut() {
-                                        match from_connector {
-                                            Connector::Output(id) => {
-                                                edge.x2 = x;
-                                                edge.y2 = y;
-                                                edge.from_output = Some(id.clone());
-                                            }
-                                            Connector::Input(id) => {
-                                                edge.x1 = x;
-                                                edge.y1 = y;
-                                                edge.to_input = Some(id.clone());
-                                            }
-                                        }
-                                    } else {
-                                        // remove the temp edge if not connected
-                                        edges.pop();
-                                    }
-                                } else {
-                                    // remove the temp edge if not connected
-                                    edges.pop();
+            WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
+                to_reference,
+                to_connector,
+            }) => {
+                if let Some(to_reference) = to_reference {
+                    if let (Some(ref viewport), Some(elm), Some(to_connector), Some(edge)) = (
+                        viewport.clone(),
+                        to_reference.cast::<Element>(),
+                        to_connector,
+                        edges.last_mut(),
+                    ) {
+                        if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
+                            let x = elm.get_bounding_client_rect().x() as StandardUnit;
+                            let y = elm.get_bounding_client_rect().y() as StandardUnit;
+                            let x = viewport.relative_x_pos_from_abs(x, None);
+                            let y = viewport.relative_y_pos_from_abs(y, None);
+                            match to_connector {
+                                Connector::Output(id) => {
+                                    edge.x1 = x;
+                                    edge.y1 = y;
+                                    edge.from_output = Some(id.clone());
                                 }
-                            } else {
-                                // remove the temp edge if not connected
-                                edges.pop();
+                                Connector::Input(id) => {
+                                    edge.x2 = x;
+                                    edge.y2 = y;
+                                    edge.to_input = Some(id.clone());
+                                }
                             }
+                            log::info!("NewEdgeDragDeactivate -> edge: {:?}", edge);
                         } else {
                             // remove the temp edge if not connected
                             edges.pop();

@@ -26,6 +26,13 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
     let store = use_reducer(WorkspaceStore::default);
     let dispatcher = store.dispatcher();
     log::info!("store.interaction_mode: {:?}", store.interaction_mode);
+    log::info!(
+        "store.edge[0]: {:?}",
+        store
+            .edges
+            .last()
+            .map(|e| (e.from_output.as_ref(), e.to_input.as_ref()))
+    );
 
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
@@ -61,11 +68,12 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                 }
                 InteractionMode::NodeDrag(_) => store.dispatch(WorkspaceAction::NodeDragDeactivate),
-                InteractionMode::NewEdgeDrag(_) => {
-                    store.dispatch(WorkspaceAction::NewEdgeDragDeactivate(
-                        NewEdgeDragDeactivateCmd { to_reference: None },
-                    ))
-                }
+                InteractionMode::NewEdgeDrag(_) => store.dispatch(
+                    WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
+                        to_reference: None,
+                        to_connector: None,
+                    }),
+                ),
             }
         })
     };
@@ -84,11 +92,12 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
                     // store.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
                 }
                 InteractionMode::NodeDrag(_) => store.dispatch(WorkspaceAction::NodeDragDeactivate),
-                InteractionMode::NewEdgeDrag(_) => {
-                    store.dispatch(WorkspaceAction::NewEdgeDragDeactivate(
-                        NewEdgeDragDeactivateCmd { to_reference: None },
-                    ))
-                }
+                InteractionMode::NewEdgeDrag(_) => store.dispatch(
+                    WorkspaceAction::NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd {
+                        to_reference: None,
+                        to_connector: None,
+                    }),
+                ),
             }
         })
     };
@@ -119,6 +128,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             dispatcher.dispatch(WorkspaceAction::NewEdgeDragDeactivate(
                 NewEdgeDragDeactivateCmd {
                     to_reference: Some(input.reference),
+                    to_connector: Some(Connector::Input(input.id)),
                 },
             ))
         })
@@ -140,6 +150,7 @@ pub fn render_node_list(RenderNodeListProps {}: &RenderNodeListProps) -> Html {
             dispatcher.dispatch(WorkspaceAction::NewEdgeDragDeactivate(
                 NewEdgeDragDeactivateCmd {
                     to_reference: Some(output.reference),
+                    to_connector: Some(Connector::Output(output.id)),
                 },
             ))
         })
