@@ -129,7 +129,7 @@ pub fn render_node(
     bg_color.set_saturation(50.);
     html! {
         <div
-            key={node.id}
+            key={node.id.clone()}
             onmousedown={handle_mouse_down}
             onmouseup={handle_mouse_up}
             onclick={handle_click}

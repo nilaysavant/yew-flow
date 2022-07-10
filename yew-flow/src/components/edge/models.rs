@@ -1,12 +1,15 @@
 use colorsys::Hsl;
 use yew::prelude::*;
 
-use crate::types::standard_unit::StandardUnit;
+use crate::types::{
+    standard_id::{IdentifierExt, StandardId},
+    standard_unit::StandardUnit,
+};
 
 /// Edge
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub struct Edge {
-    pub id: usize,
+    pub id: StandardId,
     /// From (x1, y1) coordinate
     pub x1: StandardUnit,
     /// From (x1, y1) coordinate
@@ -21,7 +24,7 @@ pub struct Edge {
 impl Default for Edge {
     fn default() -> Self {
         Self {
-            id: Default::default(),
+            id: StandardId::generate(),
             x1: Default::default(),
             y1: Default::default(),
             x2: Default::default(),

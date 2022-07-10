@@ -11,7 +11,10 @@ use crate::{
         viewport::models::Viewport,
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
-    types::standard_unit::StandardUnit,
+    types::{
+        standard_id::{IdentifierExt, StandardId},
+        standard_unit::StandardUnit,
+    },
 };
 
 pub struct DragNodeCmd {
@@ -58,7 +61,7 @@ pub enum WorkspaceAction {
     /// Init/Re-init store
     Init,
     /// When node drag needs to be activated.
-    NodeDragActivate(usize),
+    NodeDragActivate(StandardId),
     /// When node needs to be dragged.
     DragNode(DragNodeCmd),
     /// When node drag needs to be deactivated.
@@ -85,7 +88,7 @@ pub enum InteractionMode {
     /// No interaction mode.
     None,
     /// Node drag mode. Pass `node_id` of node being dragged.
-    NodeDrag(usize),
+    NodeDrag(StandardId),
     /// New Edge drag mode.
     NewEdgeDrag(NewEdgeDragMode),
 }
@@ -113,10 +116,10 @@ impl Default for WorkspaceStore {
                     let mut color = Hsl::new(0., 100., 50., Some(0.8));
                     color.set_hue(360. / 15. * ((i * j) as f64));
                     Node {
-                        id,
+                        id: StandardId::generate(),
                         title: format!("Node {}", id),
-                        x: ((NODE_WIDTH as usize + 10) * i) as StandardUnit,
-                        y: ((NODE_HEIGHT as usize + 10) * j) as StandardUnit,
+                        x: ((NODE_WIDTH + 10.) * i as f64) as StandardUnit,
+                        y: ((NODE_HEIGHT + 10.) * j as f64) as StandardUnit,
                         color,
                         inputs: (0..3)
                             .into_iter()
@@ -155,8 +158,8 @@ impl Reducible for WorkspaceStore {
         match action {
             WorkspaceAction::Init => Self::default().into(),
             WorkspaceAction::DragNode(DragNodeCmd { x, y }) => {
-                if let InteractionMode::NodeDrag(id) = interaction_mode {
-                    let active_node = nodes.iter_mut().find(|n| n.id == id);
+                if let InteractionMode::NodeDrag(ref id) = interaction_mode {
+                    let active_node = nodes.iter_mut().find(|n| n.id == *id);
                     if let Some(active_node) = active_node {
                         active_node.x = x;
                         active_node.y = y;
@@ -206,9 +209,6 @@ impl Reducible for WorkspaceStore {
                             y2: y1,
                             ..Default::default()
                         };
-                        if let Some(edge) = edges.last() {
-                            new_edge.id = edge.id + 1;
-                        }
                         edges.push(new_edge);
                     }
                 }
@@ -255,7 +255,8 @@ impl Reducible for WorkspaceStore {
                     if let Some(to_reference) = to_reference {
                         if let Some(elm) = to_reference.cast::<Element>() {
                             if let Some(viewport) = viewport {
-                                if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
+                                if viewport.dimensions.width > 0. && viewport.dimensions.height > 0.
+                                {
                                     let x = elm.get_bounding_client_rect().x() as StandardUnit;
                                     let y = elm.get_bounding_client_rect().y() as StandardUnit;
                                     let x = viewport.relative_x_pos_from_abs(x, None);

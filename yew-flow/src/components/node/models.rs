@@ -1,23 +1,23 @@
 use colorsys::Hsl;
 use yew::prelude::*;
 
-use crate::types::standard_unit::StandardUnit;
+use crate::types::{standard_id::StandardId, standard_unit::StandardUnit};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct NodeInput {
-    pub id: String,
+    pub id: StandardId,
     pub reference: NodeRef,
 }
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct NodeOutput {
-    pub id: String,
+    pub id: StandardId,
     pub reference: NodeRef,
 }
 
 #[derive(Clone, PartialEq, Properties, Debug)]
 pub struct Node {
-    pub id: usize,
+    pub id: StandardId,
     pub title: String,
     pub x: StandardUnit,
     pub y: StandardUnit,
