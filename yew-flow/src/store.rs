@@ -123,15 +123,15 @@ impl Default for WorkspaceStore {
                         color,
                         inputs: (0..3)
                             .into_iter()
-                            .map(|input_id| NodeInput {
-                                id: format!("node:{} input:{}", id, input_id),
+                            .map(|_| NodeInput {
+                                id: StandardId::generate(),
                                 reference: NodeRef::default(),
                             })
                             .collect(),
                         outputs: (0..3)
                             .into_iter()
-                            .map(|output_id| NodeOutput {
-                                id: format!("node:{} input:{}", id, output_id),
+                            .map(|_| NodeOutput {
+                                id: StandardId::generate(),
                                 reference: NodeRef::default(),
                             })
                             .collect(),
