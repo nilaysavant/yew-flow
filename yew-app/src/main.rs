@@ -34,7 +34,7 @@ fn app() -> Html {
     };
 
     html! {
-        <div class="flex flex-col min-h-0 bg-neutral-900 p-4" style="width: 100vw; height: 100vh;">
+        <div class="flex flex-col min-h-0 bg-neutral-900 p-4 text-neutral-300" style="width: 100vw; height: 100vh;">
             <Workspace
                 values={(*values).clone()}
                 {on_change}
@@ -46,8 +46,8 @@ fn app() -> Html {
                     value={(*json_text).clone()}
                 />
             </div>
-            <div class="flex-1">
-                
+            <div class="flex-1 mt-4">
+                <button class="bg-slate-700 px-6 py-4 rounded-sm border-2 border-neutral-400 hover:bg-slate-600 active:bg-slate-500">{"Submit"}</button>
             </div>
            </div>
         </div>
