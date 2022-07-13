@@ -22,7 +22,9 @@ pub struct WorkspaceProps;
 #[function_component(Workspace)]
 pub fn workspace(WorkspaceProps {}: &WorkspaceProps) -> Html {
     let container_ref = use_node_ref();
-    let store = use_reducer(WorkspaceStore::default);
+    let store = use_reducer(|| WorkspaceStore {
+        ..Default::default()
+    });
     let dispatcher = store.dispatcher();
     log::info!("store.interaction_mode: {:?}", store.interaction_mode);
 
