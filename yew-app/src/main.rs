@@ -1,12 +1,19 @@
 use yew::prelude::*;
 
-use yew_flow::Workspace;
+use yew_flow::{workspace::YewFlowInitialState, Workspace};
 
 #[function_component(App)]
 fn app() -> Html {
+    let initial_state = YewFlowInitialState {
+        nodes: vec![],
+        edges: vec![],
+    };
+
     html! {
         <>
-            <Workspace />
+            <Workspace
+                initial_state={initial_state}
+            />
         </>
     }
 }

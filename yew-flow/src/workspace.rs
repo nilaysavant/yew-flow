@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 
 use crate::{
     components::{
-        edge::render_edge_list::RenderEdgeList, node::render_node_list::RenderNodeList,
+        edge::{models::Edge, render_edge_list::RenderEdgeList},
+        node::{models::Node, render_node_list::RenderNodeList},
         viewport::models::Viewport,
     },
     constants::{NODE_HEIGHT, NODE_WIDTH},
@@ -12,17 +14,30 @@ use crate::{
     },
 };
 
+/// # Initial State
+///
+/// Initial state of the workspace.
 #[derive(Debug, Properties, PartialEq)]
-pub struct WorkspaceProps;
+pub struct YewFlowInitialState {
+    pub nodes: Vec<Node>,
+    pub edges: Vec<Edge>,
+}
+
+#[derive(Debug, Properties, PartialEq)]
+pub struct WorkspaceProps {
+    pub initial_state: YewFlowInitialState,
+}
 
 /// # Yew Flow Workspace
 ///
 /// `yew-flow` canvas/work area where nodes
 /// are rendered.
 #[function_component(Workspace)]
-pub fn workspace(WorkspaceProps {}: &WorkspaceProps) -> Html {
+pub fn workspace(WorkspaceProps { initial_state }: &WorkspaceProps) -> Html {
     let container_ref = use_node_ref();
     let store = use_reducer(|| WorkspaceStore {
+        nodes: initial_state.nodes.clone(),
+        edges: initial_state.edges.clone(),
         ..Default::default()
     });
     let dispatcher = store.dispatcher();
