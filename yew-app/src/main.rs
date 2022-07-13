@@ -11,6 +11,7 @@ fn app() -> Html {
         nodes: WorkspaceStore::default().nodes,
         edges: WorkspaceStore::default().edges,
     });
+    let error = use_state(|| "".to_string());
     let text_area_ref = use_node_ref();
     let json_text = {
         let values = values.clone();
@@ -37,12 +38,16 @@ fn app() -> Html {
     let on_submit = {
         let text_area_ref = text_area_ref.clone();
         let values = values.clone();
+        let error = error.clone();
         use_callback(
             move |_e, text_area_ref| {
                 if let Some(elm) = text_area_ref.cast::<HtmlTextAreaElement>() {
                     match serde_json::from_str::<YewFlowValues>(&elm.value()) {
                         Ok(new_values) => values.set(new_values),
-                        Err(e) => log::error!("could not deserialize json: {:?}", e),
+                        Err(e) => {
+                            error.set(e.to_string());
+                            log::error!("could not deserialize json: {:?}", e)
+                        }
                     }
                 }
             },
@@ -71,6 +76,7 @@ fn app() -> Html {
                 >
                     {"Submit"}
                 </button>
+                <div class="text-red-500">{(*error).clone()}</div>
             </div>
            </div>
         </div>
