@@ -139,7 +139,7 @@ pub fn workspace(WorkspaceProps { values, on_change }: &WorkspaceProps) -> Html 
                 "flex",
                 "flex-col",
                 "min-h-0",
-                "p-4",
+                "p-2",
             )}
         >
             <div
