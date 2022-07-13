@@ -41,6 +41,7 @@ fn app() -> Html {
         let error = error.clone();
         use_callback(
             move |_e, text_area_ref| {
+                error.set("".to_string());
                 if let Some(elm) = text_area_ref.cast::<HtmlTextAreaElement>() {
                     match serde_json::from_str::<YewFlowValues>(&elm.value()) {
                         Ok(new_values) => values.set(new_values),
