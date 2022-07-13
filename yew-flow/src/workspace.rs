@@ -16,15 +16,16 @@ use crate::{
 /// # Initial State
 ///
 /// Initial state of the workspace.
-#[derive(Debug, Properties, PartialEq)]
-pub struct YewFlowInitialState {
+#[derive(Debug, Clone, Properties, PartialEq)]
+pub struct YewFlowValues {
     pub nodes: Vec<Node>,
     pub edges: Vec<Edge>,
 }
 
-#[derive(Debug, Properties, PartialEq)]
+#[derive(Debug, Clone, Properties, PartialEq)]
 pub struct WorkspaceProps {
-    pub initial_state: YewFlowInitialState,
+    pub values: YewFlowValues,
+    pub on_change: Callback<YewFlowValues>,
 }
 
 /// # Yew Flow Workspace
@@ -32,11 +33,11 @@ pub struct WorkspaceProps {
 /// `yew-flow` canvas/work area where nodes
 /// are rendered.
 #[function_component(Workspace)]
-pub fn workspace(WorkspaceProps { initial_state }: &WorkspaceProps) -> Html {
+pub fn workspace(WorkspaceProps { values, on_change }: &WorkspaceProps) -> Html {
     let container_ref = use_node_ref();
     let store = use_reducer(|| WorkspaceStore {
-        nodes: initial_state.nodes.clone(),
-        edges: initial_state.edges.clone(),
+        nodes: values.nodes.clone(),
+        edges: values.edges.clone(),
         ..Default::default()
     });
     let dispatcher = store.dispatcher();
@@ -110,6 +111,23 @@ pub fn workspace(WorkspaceProps { initial_state }: &WorkspaceProps) -> Html {
                 || ()
             },
             container_ref,
+        )
+    }
+
+    {
+        let nodes = store.nodes.clone();
+        let edges = store.edges.clone();
+        let on_change = on_change.clone();
+        use_effect_with_deps(
+            // Re-run this on every change of nodes/edges to send the new values back to parent
+            |(nodes, edges, on_change)| {
+                on_change.emit(YewFlowValues {
+                    nodes: nodes.clone(),
+                    edges: edges.clone(),
+                });
+                || ()
+            },
+            (nodes, edges, on_change),
         )
     }
 
