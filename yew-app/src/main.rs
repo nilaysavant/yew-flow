@@ -1,3 +1,5 @@
+use serde::Serialize;
+use serde_json::ser::PrettyFormatter;
 use yew::prelude::*;
 
 use yew_flow::{store::WorkspaceStore, workspace::YewFlowValues, Workspace};
@@ -13,7 +15,14 @@ fn app() -> Html {
         use_memo(
             |values| {
                 let values = values.clone();
-                serde_json::to_string_pretty(&(*values).clone()).unwrap()
+                // pretty formatter with ident: ref: https://stackoverflow.com/questions/42722169/generate-pretty-indented-json-with-serde
+                let mut ser = serde_json::Serializer::with_formatter(
+                    Vec::new(),
+                    PrettyFormatter::with_indent(b"    "),
+                );
+                let json_value = serde_json::to_value(&(*values).clone()).unwrap();
+                json_value.serialize(&mut ser).unwrap();
+                String::from_utf8(ser.into_inner()).unwrap()
             },
             values,
         )
