@@ -12,7 +12,7 @@ fn app() -> Html {
     let on_change = {
         use_callback(
             |new_values, _| {
-                log::info!("new_values: {:?}", new_values);
+                log::info!("new_values: {:?}", serde_json::to_string_pretty(&new_values).unwrap());
             },
             (),
         )
