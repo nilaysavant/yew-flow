@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 
 use crate::{
