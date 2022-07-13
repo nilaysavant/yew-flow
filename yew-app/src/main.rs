@@ -1,5 +1,6 @@
 use serde::Serialize;
 use serde_json::ser::PrettyFormatter;
+use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
 use yew_flow::{store::WorkspaceStore, workspace::YewFlowValues, Workspace};
@@ -10,6 +11,7 @@ fn app() -> Html {
         nodes: WorkspaceStore::default().nodes,
         edges: WorkspaceStore::default().edges,
     });
+    let text_area_ref = use_node_ref();
     let json_text = {
         let values = values.clone();
         use_memo(
@@ -32,6 +34,21 @@ fn app() -> Html {
         let values = values.clone();
         use_callback(move |new_values, _| values.set(new_values), ())
     };
+    let on_submit = {
+        let text_area_ref = text_area_ref.clone();
+        let values = values.clone();
+        use_callback(
+            move |_e, text_area_ref| {
+                if let Some(elm) = text_area_ref.cast::<HtmlTextAreaElement>() {
+                    match serde_json::from_str::<YewFlowValues>(&elm.value()) {
+                        Ok(new_values) => values.set(new_values),
+                        Err(e) => log::error!("could not deserialize json: {:?}", e),
+                    }
+                }
+            },
+            text_area_ref,
+        )
+    };
 
     html! {
         <div class="flex flex-col min-h-0 bg-neutral-900 p-4 text-neutral-300" style="width: 100vw; height: 100vh;">
@@ -42,12 +59,18 @@ fn app() -> Html {
            <div class="flex-1 flex w-full">
             <div class="flex-1 mr-4 mt-4">
                 <textarea
+                    ref={text_area_ref.clone()}
                     class="resize-none w-full h-full border-2 border-neutral-400 bg-slate-800 focus:outline-none focus:border-neutral-300 text-cyan-300 selection:bg-sky-700"
                     value={(*json_text).clone()}
                 />
             </div>
             <div class="flex-1 mt-4">
-                <button class="bg-slate-700 px-6 py-4 rounded-sm border-2 border-neutral-400 hover:bg-slate-600 active:bg-slate-500">{"Submit"}</button>
+                <button
+                    onclick={on_submit}
+                    class="bg-slate-700 px-6 py-4 rounded-sm border-2 border-neutral-400 hover:bg-slate-600 active:bg-slate-500"
+                >
+                    {"Submit"}
+                </button>
             </div>
            </div>
         </div>
