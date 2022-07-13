@@ -899,6 +899,7 @@ name = "yew-app"
 version = "0.1.0"
 dependencies = [
  "log",
+ "serde",
  "stylist",
  "wasm-logger",
  "yew 0.19.3 (git+https://github.com/yewstack/yew/)",
