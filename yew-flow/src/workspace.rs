@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 
 use crate::{
@@ -16,15 +17,16 @@ use crate::{
 /// # Initial State
 ///
 /// Initial state of the workspace.
-#[derive(Debug, Clone, Properties, PartialEq)]
+#[derive(Debug, Clone, Properties, PartialEq, Serialize, Deserialize)]
 pub struct YewFlowValues {
     pub nodes: Vec<Node>,
     pub edges: Vec<Edge>,
 }
 
-#[derive(Debug, Clone, Properties, PartialEq)]
+#[derive(Debug, Clone, Properties, PartialEq, Serialize, Deserialize)]
 pub struct WorkspaceProps {
     pub values: YewFlowValues,
+    #[serde(skip)]
     pub on_change: Callback<YewFlowValues>,
 }
 

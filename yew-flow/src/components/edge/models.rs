@@ -1,4 +1,5 @@
 use colorsys::Hsl;
+use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 
 use crate::types::{
@@ -7,7 +8,7 @@ use crate::types::{
 };
 
 /// Edge
-#[derive(Clone, PartialEq, Properties, Debug)]
+#[derive(Clone, PartialEq, Properties, Debug, Serialize, Deserialize)]
 pub struct Edge {
     pub id: StandardId,
     /// From input id.
@@ -22,6 +23,7 @@ pub struct Edge {
     pub x2: StandardUnit,
     /// To (x2, y2) coordinate
     pub y2: StandardUnit,
+    #[serde(skip)]
     pub color: Hsl,
 }
 
