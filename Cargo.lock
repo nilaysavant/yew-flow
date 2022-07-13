@@ -911,7 +911,6 @@ version = "0.1.0"
 dependencies = [
  "colorsys",
  "log",
- "serde",
  "stylist",
  "uuid",
  "wasm-logger",
