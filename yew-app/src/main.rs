@@ -42,7 +42,7 @@ fn app() -> Html {
            <div class="flex-1 flex w-full px-4 bg-neutral-900">
             <div class="flex-1 p-2">
                 <textarea
-                    class="w-full h-full border-2 border-neutral-500 bg-slate-800 focus:outline-none focus:border-neutral-400 text-cyan-300 selection:bg-blue-500"
+                    class="resize-none w-full h-full border-2 border-neutral-500 bg-slate-800 focus:outline-none focus:border-neutral-400 text-cyan-300 selection:bg-sky-700"
                     value={(*json_text).clone()}
                 />
             </div>
