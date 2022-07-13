@@ -30,6 +30,7 @@ pub fn render_edge(RenderEdgeProps { edge }: &RenderEdgeProps) -> Html {
 
     html! {
         <path
+            key={edge.id.clone()}
             d={format!(
                 "M {x1} {y1} C {sx1} {sy1}, {sx2} {sy2}, {x2} {y2}",
                 x1=x1,
