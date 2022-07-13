@@ -34,19 +34,21 @@ fn app() -> Html {
     };
 
     html! {
-        <div class="flex flex-col min-h-0" style="width: 100vw; height: 100vh;">
+        <div class="flex flex-col min-h-0 bg-neutral-900 p-4" style="width: 100vw; height: 100vh;">
             <Workspace
                 values={(*values).clone()}
                 {on_change}
             />
-           <div class="flex-1 flex w-full px-4 bg-neutral-900">
-            <div class="flex-1 p-2">
+           <div class="flex-1 flex w-full">
+            <div class="flex-1 mr-4 mt-4">
                 <textarea
-                    class="resize-none w-full h-full border-2 border-neutral-500 bg-slate-800 focus:outline-none focus:border-neutral-400 text-cyan-300 selection:bg-sky-700"
+                    class="resize-none w-full h-full border-2 border-neutral-400 bg-slate-800 focus:outline-none focus:border-neutral-300 text-cyan-300 selection:bg-sky-700"
                     value={(*json_text).clone()}
                 />
             </div>
-            <div class="flex-1">{"B"}</div>
+            <div class="flex-1">
+                
+            </div>
            </div>
         </div>
     }

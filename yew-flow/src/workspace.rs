@@ -139,12 +139,12 @@ pub fn workspace(WorkspaceProps { values, on_change }: &WorkspaceProps) -> Html 
                 "flex",
                 "flex-col",
                 "min-h-0",
-                "p-2",
             )}
         >
             <div
                 ref={container_ref}
                 class={classes!(
+                    "flex-1",
                     "text-neutral-50",
                     "bg-neutral-800",
                     "rounded-sm",
@@ -152,7 +152,7 @@ pub fn workspace(WorkspaceProps { values, on_change }: &WorkspaceProps) -> Html 
                     "border-2",
                     "relative",
                 )}
-                style={format!("width: 100%; height: 400px;")}
+                style={format!("width: 100%; min-height: 50vh")}
                 onmousemove={on_container_mouse_move}
                 onmouseup={on_container_mouse_up}
             >
