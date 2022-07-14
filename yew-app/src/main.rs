@@ -35,51 +35,22 @@ fn app() -> Html {
         let values = values.clone();
         use_callback(move |new_values, _| values.set(new_values), ())
     };
-    let on_submit = {
-        let text_area_ref = text_area_ref.clone();
-        let values = values.clone();
-        let error = error.clone();
-        use_callback(
-            move |_e, text_area_ref| {
-                error.set("".to_string());
-                if let Some(elm) = text_area_ref.cast::<HtmlTextAreaElement>() {
-                    match serde_json::from_str::<YewFlowValues>(&elm.value()) {
-                        Ok(new_values) => values.set(new_values),
-                        Err(e) => {
-                            error.set(e.to_string());
-                            log::error!("could not deserialize json: {:?}", e)
-                        }
-                    }
-                }
-            },
-            text_area_ref,
-        )
-    };
 
     html! {
-        <div class="flex flex-col min-h-0 bg-neutral-900 p-4 text-neutral-300" style="width: 100vw; height: 100vh;">
-            <Workspace
-                values={(*values).clone()}
-                {on_change}
-            />
-           <div class="flex-1 flex w-full">
-            <div class="flex-1 mr-4 mt-4">
+        <div class="flex bg-neutral-900 p-4 text-neutral-300" style="width: 100vw; height: 100vh;">
+            <div class="flex-1 mr-2 h-full flex flex-col min-h-0">
+                <Workspace
+                    values={(*values).clone()}
+                    {on_change}
+                />
+            </div>
+            <div class="flex-1 h-full">
                 <textarea
                     ref={text_area_ref.clone()}
                     class="resize-none w-full h-full border-2 border-neutral-400 bg-slate-800 focus:outline-none focus:border-neutral-300 text-cyan-300 selection:bg-sky-700"
                     value={(*json_text).clone()}
                 />
             </div>
-            <div class="flex-1 mt-4">
-                <button
-                    onclick={on_submit}
-                    class="bg-slate-700 px-6 py-4 rounded-sm border-2 border-neutral-400 hover:bg-slate-600 active:bg-slate-500"
-                >
-                    {"Submit"}
-                </button>
-                <div class="text-red-500">{(*error).clone()}</div>
-            </div>
-           </div>
         </div>
     }
 }
