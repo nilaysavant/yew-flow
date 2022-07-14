@@ -127,7 +127,7 @@ impl WorkspaceStore {
                         title: format!("Node {}", id),
                         x: ((NODE_WIDTH + 10.) * i as f64) as StandardUnit,
                         y: ((NODE_HEIGHT + 10.) * j as f64) as StandardUnit,
-                        color: "red".to_string(),
+                        color: "#ff0000".to_string(),
                         inputs: (0..3)
                             .into_iter()
                             .map(|input| NodeInput {

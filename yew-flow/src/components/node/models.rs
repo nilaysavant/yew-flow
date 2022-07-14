@@ -23,7 +23,6 @@ pub struct Node {
     pub title: String,
     pub x: StandardUnit,
     pub y: StandardUnit,
-    #[serde(skip)]
     pub color: String,
     pub inputs: Vec<NodeInput>,
     pub outputs: Vec<NodeOutput>,

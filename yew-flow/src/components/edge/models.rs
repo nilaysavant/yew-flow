@@ -23,7 +23,7 @@ pub struct Edge {
     pub x2: StandardUnit,
     /// To (x2, y2) coordinate
     pub y2: StandardUnit,
-    #[serde(skip)]
+    /// Edge color css string
     pub color: String,
 }
 
