@@ -51,8 +51,8 @@ fn app() -> Html {
         let text_area_ref = text_area_ref.clone();
         use_callback(
             move |_, (set_values, text_area_ref, set_error)| {
+                set_error.set("".to_string());
                 if let Some(elm) = text_area_ref.cast::<HtmlTextAreaElement>() {
-                    log::info!("TEST");
                     match serde_json::from_str::<YewFlowValues>(&elm.value()) {
                         Ok(values) => set_values.set(values),
                         Err(e) => {
@@ -101,16 +101,17 @@ fn app() -> Html {
                         prevent_changes={(*prevent_changes).clone()}
                     />
                 </div>
-                <div class="basis-1/3 h-full">
+                <div class="basis-1/3 h-full flex flex-col">
                     <textarea
                         type="text"
                         ref={text_area_ref.clone()}
-                        class="resize-none w-full h-full border-2 border-neutral-400 bg-slate-800 focus:outline-none focus:border-neutral-300 text-cyan-300 selection:bg-sky-700"
+                        class="flex-1 resize-none w-full h-full border-2 border-neutral-400 bg-slate-800 focus:outline-none focus:border-neutral-300 text-cyan-300 selection:bg-sky-700"
                         value={(*json_text).clone()}
                         onkeyup={on_key_up}
                         onfocus={on_focus}
                         onblur={on_blur}
                     />
+                    <span class="text-red-500 p-1">{(*error).clone()}</span>
                 </div>
             </div>
         </div>
