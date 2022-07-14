@@ -44,7 +44,7 @@ fn app() -> Html {
                     {on_change}
                 />
             </div>
-            <div class="flex-1 h-full">
+            <div class="basis-1/3 h-full">
                 <textarea
                     ref={text_area_ref.clone()}
                     class="resize-none w-full h-full border-2 border-neutral-400 bg-slate-800 focus:outline-none focus:border-neutral-300 text-cyan-300 selection:bg-sky-700"

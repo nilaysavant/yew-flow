@@ -147,6 +147,8 @@ pub fn workspace(WorkspaceProps { values, on_change }: &WorkspaceProps) -> Html 
                 class={classes!(
                     "flex-1",
                     "min-h-0",
+                    "flex",
+                    "flex-col",
                     "w-full",
                     "text-neutral-50",
                     "bg-neutral-800",
