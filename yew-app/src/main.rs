@@ -12,7 +12,6 @@ fn app() -> Html {
         let WorkspaceStore { nodes, edges, .. } = WorkspaceStore::generate();
         YewFlowValues { nodes, edges }
     });
-    log::info!("values: {:?}", values.nodes.last().clone());
     let error = use_state(|| "".to_string());
     let text_area_ref = use_node_ref();
     let json_text = {

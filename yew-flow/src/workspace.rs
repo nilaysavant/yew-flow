@@ -50,8 +50,6 @@ pub fn workspace(
         ..Default::default()
     });
     let dispatcher = store.dispatcher();
-    log::info!("store.lastNode: {:?}", store.nodes.last());
-    log::info!("prevent: {:?}", prevent_changes.clone());
 
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();

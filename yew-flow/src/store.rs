@@ -182,7 +182,7 @@ impl Reducible for WorkspaceStore {
     type Action = WorkspaceAction;
 
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
-        let mut viewport = self.viewport.clone();
+        let viewport = self.viewport.clone();
         let mut nodes = self.nodes.clone();
         let mut edges = self.edges.clone();
         let mut interaction_mode = self.interaction_mode.clone();
