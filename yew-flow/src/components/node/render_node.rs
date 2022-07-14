@@ -29,7 +29,7 @@ pub fn render_node(
         on_output_mouse_up,
     }: &RenderNodeProps,
 ) -> Html {
-    log::info!("render_node: {}", node.id);
+    // log::info!("render_node: {}", node.id);
     let render_inputs = node
         .inputs
         .iter()
