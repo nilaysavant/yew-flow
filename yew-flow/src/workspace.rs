@@ -26,6 +26,7 @@ pub struct YewFlowValues {
 #[derive(Debug, Clone, Properties, PartialEq, Serialize, Deserialize)]
 pub struct WorkspaceProps {
     pub values: YewFlowValues,
+    pub prevent_changes: bool,
     #[serde(skip)]
     pub on_change: Callback<YewFlowValues>,
 }
@@ -35,7 +36,13 @@ pub struct WorkspaceProps {
 /// `yew-flow` canvas/work area where nodes
 /// are rendered.
 #[function_component(Workspace)]
-pub fn workspace(WorkspaceProps { values, on_change }: &WorkspaceProps) -> Html {
+pub fn workspace(
+    WorkspaceProps {
+        values,
+        prevent_changes,
+        on_change,
+    }: &WorkspaceProps,
+) -> Html {
     let container_ref = use_node_ref();
     let store = use_reducer(|| WorkspaceStore {
         nodes: values.nodes.clone(),
@@ -43,7 +50,8 @@ pub fn workspace(WorkspaceProps { values, on_change }: &WorkspaceProps) -> Html 
         ..Default::default()
     });
     let dispatcher = store.dispatcher();
-    log::info!("store.interaction_mode: {:?}", store.interaction_mode);
+    log::info!("store.lastNode: {:?}", store.nodes.last());
+    log::info!("prevent: {:?}", prevent_changes.clone());
 
     let on_container_mouse_move = {
         let container_ref = container_ref.clone();
@@ -100,19 +108,38 @@ pub fn workspace(WorkspaceProps { values, on_change }: &WorkspaceProps) -> Html 
     };
 
     {
-        let container_ref = container_ref.clone();
         let dispatcher = dispatcher.clone();
+        let values = values.clone();
+        let prevent_changes = prevent_changes.clone();
         use_effect_with_deps(
             // Re-run this on every change of container_ref
-            move |container_ref| {
-                let viewport = Viewport::new(container_ref.clone());
-                if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
-                    // Re-init the workspace as container/viewport has changed
-                    dispatcher.dispatch(WorkspaceAction::Init(viewport.clone()));
+            move |(values, prevent_changes, dispatcher)| {
+                if *prevent_changes {
+                    // Re-init the workspace with changed
+                    dispatcher.dispatch(WorkspaceAction::Init(Some(values.clone())));
+                } else {
+                    // Re-init the workspace with default values
+                    dispatcher.dispatch(WorkspaceAction::Init(None));
                 }
                 || ()
             },
-            container_ref,
+            (values, prevent_changes, dispatcher),
+        )
+    }
+
+    {
+        let container_ref = container_ref.clone();
+        let dispatcher = dispatcher.clone();
+        use_effect_with_deps(
+            move |(container_ref, dispatcher)| {
+                let viewport = Viewport::new(container_ref.clone());
+                if viewport.dimensions.width > 0. && viewport.dimensions.height > 0. {
+                    // Change viewport
+                    dispatcher.dispatch(WorkspaceAction::ViewPortChange(viewport));
+                }
+                || ()
+            },
+            (container_ref, dispatcher),
         )
     }
 
@@ -120,16 +147,19 @@ pub fn workspace(WorkspaceProps { values, on_change }: &WorkspaceProps) -> Html 
         let nodes = store.nodes.clone();
         let edges = store.edges.clone();
         let on_change = on_change.clone();
+        let prevent_changes = prevent_changes.clone();
         use_effect_with_deps(
             // Re-run this on every change of nodes/edges to send the new values back to parent
-            |(nodes, edges, on_change)| {
-                on_change.emit(YewFlowValues {
-                    nodes: nodes.clone(),
-                    edges: edges.clone(),
-                });
+            |(nodes, edges, on_change, prevent_changes)| {
+                if !prevent_changes {
+                    on_change.emit(YewFlowValues {
+                        nodes: nodes.clone(),
+                        edges: edges.clone(),
+                    });
+                }
                 || ()
             },
-            (nodes, edges, on_change),
+            (nodes, edges, on_change, prevent_changes),
         )
     }
 

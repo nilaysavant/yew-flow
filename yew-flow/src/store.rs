@@ -15,6 +15,7 @@ use crate::{
         standard_id::{IdentifierExt, StandardId},
         standard_unit::StandardUnit,
     },
+    workspace::YewFlowValues,
 };
 
 pub struct DragNodeCmd {
@@ -59,7 +60,9 @@ pub struct DragEdgeCmd {
 /// Actions to be dispatched to `WorkspaceStore`.
 pub enum WorkspaceAction {
     /// Init/Re-init store
-    Init(Viewport),
+    Init(Option<YewFlowValues>),
+    /// Change Viewport
+    ViewPortChange(Viewport),
     /// When node drag needs to be activated.
     NodeDragActivate(StandardId),
     /// When node needs to be dragged.
@@ -93,6 +96,12 @@ pub enum InteractionMode {
     NewEdgeDrag(NewEdgeDragMode),
 }
 
+impl Default for InteractionMode {
+    fn default() -> Self {
+        InteractionMode::None
+    }
+}
+
 /// # Yew Flow Workspace Store
 ///
 /// Main state/store for `yew-flow`.
@@ -104,8 +113,8 @@ pub struct WorkspaceStore {
     pub interaction_mode: InteractionMode,
 }
 
-impl Default for WorkspaceStore {
-    fn default() -> Self {
+impl WorkspaceStore {
+    pub fn generate() -> Self {
         // Generate a grid of nodes
         let auto_incr_id = Rc::new(RefCell::new(0..));
         let nodes = (0..1)
@@ -158,53 +167,81 @@ impl Default for WorkspaceStore {
     }
 }
 
+impl Default for WorkspaceStore {
+    fn default() -> Self {
+        Self {
+            viewport: None,
+            nodes: Default::default(),
+            edges: Default::default(),
+            interaction_mode: Default::default(),
+        }
+    }
+}
+
 impl Reducible for WorkspaceStore {
     type Action = WorkspaceAction;
 
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
-        let viewport = self.viewport.clone();
+        let mut viewport = self.viewport.clone();
         let mut nodes = self.nodes.clone();
         let mut edges = self.edges.clone();
         let mut interaction_mode = self.interaction_mode.clone();
         match action {
-            WorkspaceAction::Init(viewport) => {
-                nodes.iter().for_each(|node| {
-                    let Node {
-                        inputs, outputs, ..
-                    } = node;
-                    for output in outputs.iter() {
-                        edges.iter_mut().for_each(|edge| {
-                            if edge.from_output == Some(output.id.clone()) {
-                                if let Some(elm) = output.reference.cast::<Element>() {
-                                    let x = elm.get_bounding_client_rect().x();
-                                    let y = elm.get_bounding_client_rect().y();
-                                    let x = viewport.relative_x_pos_from_abs(x, None);
-                                    let y = viewport.relative_y_pos_from_abs(y, None);
-                                    edge.x1 = x;
-                                    edge.y1 = y;
+            WorkspaceAction::Init(init_values) => {
+                if let Some(init_values) = init_values {
+                    nodes = init_values.nodes;
+                    edges = init_values.edges;
+                }
+                if let Some(viewport) = viewport.clone() {
+                    nodes.iter().for_each(|node| {
+                        let Node {
+                            inputs, outputs, ..
+                        } = node;
+                        for output in outputs.iter() {
+                            edges.iter_mut().for_each(|edge| {
+                                if edge.from_output == Some(output.id.clone()) {
+                                    if let Some(elm) = output.reference.cast::<Element>() {
+                                        let x = elm.get_bounding_client_rect().x();
+                                        let y = elm.get_bounding_client_rect().y();
+                                        let x = viewport.relative_x_pos_from_abs(x, None);
+                                        let y = viewport.relative_y_pos_from_abs(y, None);
+                                        edge.x1 = x;
+                                        edge.y1 = y;
+                                    }
                                 }
-                            }
-                        });
-                    }
-                    for input in inputs.iter() {
-                        edges.iter_mut().for_each(|edge| {
-                            if edge.to_input == Some(input.id.clone()) {
-                                if let Some(elm) = input.reference.cast::<Element>() {
-                                    let x = elm.get_bounding_client_rect().x();
-                                    let y = elm.get_bounding_client_rect().y();
-                                    let x = viewport.relative_x_pos_from_abs(x, None);
-                                    let y = viewport.relative_y_pos_from_abs(y, None);
-                                    edge.x2 = x;
-                                    edge.y2 = y;
+                            });
+                        }
+                        for input in inputs.iter() {
+                            edges.iter_mut().for_each(|edge| {
+                                if edge.to_input == Some(input.id.clone()) {
+                                    if let Some(elm) = input.reference.cast::<Element>() {
+                                        let x = elm.get_bounding_client_rect().x();
+                                        let y = elm.get_bounding_client_rect().y();
+                                        let x = viewport.relative_x_pos_from_abs(x, None);
+                                        let y = viewport.relative_y_pos_from_abs(y, None);
+                                        edge.x2 = x;
+                                        edge.y2 = y;
+                                    }
                                 }
-                            }
-                        });
-                    }
-                });
+                            });
+                        }
+                    });
+                }
                 Self {
-                    viewport: Some(viewport),
+                    viewport,
+                    nodes,
                     edges,
-                    ..Default::default()
+                    interaction_mode,
+                }
+                .into()
+            }
+            WorkspaceAction::ViewPortChange(viewport) => {
+                let viewport = Some(viewport);
+                Self {
+                    viewport,
+                    nodes,
+                    edges,
+                    interaction_mode,
                 }
                 .into()
             }

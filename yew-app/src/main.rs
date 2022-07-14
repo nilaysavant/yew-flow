@@ -7,10 +7,12 @@ use yew_flow::{store::WorkspaceStore, workspace::YewFlowValues, Workspace};
 
 #[function_component(App)]
 fn app() -> Html {
-    let values = use_state(|| YewFlowValues {
-        nodes: WorkspaceStore::default().nodes,
-        edges: WorkspaceStore::default().edges,
+    let prevent_changes = use_state(|| false);
+    let values = use_state(|| {
+        let WorkspaceStore { nodes, edges, .. } = WorkspaceStore::generate();
+        YewFlowValues { nodes, edges }
     });
+    log::info!("values: {:?}", values.nodes.last().clone());
     let error = use_state(|| "".to_string());
     let text_area_ref = use_node_ref();
     let json_text = {
@@ -33,7 +35,56 @@ fn app() -> Html {
 
     let on_change = {
         let values = values.clone();
-        use_callback(move |new_values, _| values.set(new_values), ())
+        let prevent_changes = prevent_changes.clone();
+        use_callback(
+            move |new_values, prevent_changes| {
+                if !*prevent_changes.clone() {
+                    values.set(new_values)
+                }
+            },
+            prevent_changes,
+        )
+    };
+
+    let on_key_up = {
+        let set_values = values.setter().clone();
+        let set_error = error.setter().clone();
+        let text_area_ref = text_area_ref.clone();
+        use_callback(
+            move |_, (set_values, text_area_ref, set_error)| {
+                if let Some(elm) = text_area_ref.cast::<HtmlTextAreaElement>() {
+                    log::info!("TEST");
+                    match serde_json::from_str::<YewFlowValues>(&elm.value()) {
+                        Ok(values) => set_values.set(values),
+                        Err(e) => {
+                            set_error.set(e.to_string());
+                            log::error!("{:?}", e);
+                        }
+                    }
+                }
+            },
+            (set_values, text_area_ref, set_error),
+        )
+    };
+
+    let on_focus = {
+        let prevent_changes = prevent_changes.setter().clone();
+        use_callback(
+            move |_, prevent_changes| {
+                prevent_changes.set(true);
+            },
+            prevent_changes,
+        )
+    };
+
+    let on_blur = {
+        let prevent_changes = prevent_changes.setter().clone();
+        use_callback(
+            move |_, prevent_changes| {
+                prevent_changes.set(false);
+            },
+            prevent_changes,
+        )
     };
 
     html! {
@@ -48,13 +99,18 @@ fn app() -> Html {
                     <Workspace
                         values={(*values).clone()}
                         {on_change}
+                        prevent_changes={(*prevent_changes).clone()}
                     />
                 </div>
                 <div class="basis-1/3 h-full">
                     <textarea
+                        type="text"
                         ref={text_area_ref.clone()}
                         class="resize-none w-full h-full border-2 border-neutral-400 bg-slate-800 focus:outline-none focus:border-neutral-300 text-cyan-300 selection:bg-sky-700"
                         value={(*json_text).clone()}
+                        onkeyup={on_key_up}
+                        onfocus={on_focus}
+                        onblur={on_blur}
                     />
                 </div>
             </div>
