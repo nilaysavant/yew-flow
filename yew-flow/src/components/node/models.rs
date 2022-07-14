@@ -1,4 +1,3 @@
-use colorsys::Hsl;
 use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 
@@ -25,7 +24,7 @@ pub struct Node {
     pub x: StandardUnit,
     pub y: StandardUnit,
     #[serde(skip)]
-    pub color: Hsl,
+    pub color: String,
     pub inputs: Vec<NodeInput>,
     pub outputs: Vec<NodeOutput>,
 }

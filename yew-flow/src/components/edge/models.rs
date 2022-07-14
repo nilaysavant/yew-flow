@@ -24,7 +24,7 @@ pub struct Edge {
     /// To (x2, y2) coordinate
     pub y2: StandardUnit,
     #[serde(skip)]
-    pub color: Hsl,
+    pub color: String,
 }
 
 impl Default for Edge {
@@ -37,7 +37,7 @@ impl Default for Edge {
             y1: Default::default(),
             x2: Default::default(),
             y2: Default::default(),
-            color: Hsl::new(0., 100., 100., Some(0.8)),
+            color: Hsl::new(0., 100., 100., Some(0.8)).to_css_string(),
         }
     }
 }

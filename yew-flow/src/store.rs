@@ -1,6 +1,5 @@
 use std::{cell::RefCell, rc::Rc};
 
-use colorsys::Hsl;
 use web_sys::Element;
 use yew::prelude::*;
 
@@ -123,14 +122,12 @@ impl WorkspaceStore {
                 let auto_incr_id = auto_incr_id.clone();
                 (0..5).into_iter().map(move |j| {
                     let id = auto_incr_id.clone().borrow_mut().next().unwrap();
-                    let mut color = Hsl::new(0., 100., 50., Some(0.8));
-                    color.set_hue(360. / 15. * ((i * j) as f64));
                     Node {
                         id: StandardId::generate(),
                         title: format!("Node {}", id),
                         x: ((NODE_WIDTH + 10.) * i as f64) as StandardUnit,
                         y: ((NODE_HEIGHT + 10.) * j as f64) as StandardUnit,
-                        color,
+                        color: "red".to_string(),
                         inputs: (0..3)
                             .into_iter()
                             .map(|input| NodeInput {

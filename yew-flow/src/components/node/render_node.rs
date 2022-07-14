@@ -1,3 +1,4 @@
+use colorsys::{Hsl, Rgb};
 use yew::prelude::*;
 
 use crate::constants::{NODE_HEIGHT, NODE_WIDTH};
@@ -125,7 +126,8 @@ pub fn render_node(
         Callback::from(move |_| on_click.emit(node.clone()))
     };
 
-    let mut bg_color = node.color.clone();
+    let bg_color = Rgb::from_hex_str(&node.color).unwrap_or(Rgb::new(100., 0., 0., Some(1.0)));
+    let mut bg_color = Hsl::from(&bg_color);
     bg_color.set_lightness(25.);
     bg_color.set_saturation(50.);
     html! {
@@ -139,7 +141,7 @@ pub fn render_node(
                 height = NODE_HEIGHT,
                 left = node.x,
                 top = node.y,
-                border_color = node.color.to_css_string(),
+                border_color = node.color,
                 background = bg_color.to_css_string(),
             )}
             class={classes!(
