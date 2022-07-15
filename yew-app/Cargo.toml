@@ -14,3 +14,4 @@ yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
 serde = "1.0"
 serde_json = "1.0"
 web-sys = { version = "0.3", features = ["DomRect", "Element"] }
+anyhow = "1.0.58"
