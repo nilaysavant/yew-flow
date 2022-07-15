@@ -110,7 +110,7 @@ fn app() -> Html {
                         prevent_changes={(*prevent_changes).clone()}
                     />
                 </div>
-                <div class="basis-1/3 h-full flex flex-col">
+                <div class="basis-1/3 h-full flex flex-col relative">
                     <textarea
                         type="text"
                         ref={text_area_ref.clone()}
@@ -121,7 +121,7 @@ fn app() -> Html {
                         onblur={on_blur}
                     />
                     if let Some(error) = (*error).clone() {
-                        <span class="text-red-500 p-1">{error}</span>
+                        <span class="text-red-500 bg-black bg-opacity-70 m-4 mr-8 p-4 rounded-sm absolute bottom-0 left-0">{error}</span>
                     }
                 </div>
             </div>
