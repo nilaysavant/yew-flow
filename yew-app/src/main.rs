@@ -12,7 +12,7 @@ fn app() -> Html {
         let WorkspaceStore { nodes, edges, .. } = WorkspaceStore::generate();
         YewFlowValues { nodes, edges }
     });
-    let error = use_state(|| "".to_string());
+    let error = use_state(|| None);
     let text_area_ref = use_node_ref();
     let json_text = {
         let values = values.clone();
@@ -51,12 +51,12 @@ fn app() -> Html {
         let text_area_ref = text_area_ref.clone();
         use_callback(
             move |_, (set_values, text_area_ref, set_error)| {
-                set_error.set("".to_string());
+                set_error.set(None);
                 if let Some(elm) = text_area_ref.cast::<HtmlTextAreaElement>() {
                     match serde_json::from_str::<YewFlowValues>(&elm.value()) {
                         Ok(values) => set_values.set(values),
                         Err(e) => {
-                            set_error.set(e.to_string());
+                            set_error.set(Some(e.to_string()));
                             log::error!("{:?}", e);
                         }
                     }
@@ -111,7 +111,9 @@ fn app() -> Html {
                         onfocus={on_focus}
                         onblur={on_blur}
                     />
-                    <span class="text-red-500 p-1">{(*error).clone()}</span>
+                    if let Some(error) = (*error).clone() {
+                        <span class="text-red-500 p-1">{error}</span>
+                    }
                 </div>
             </div>
         </div>
