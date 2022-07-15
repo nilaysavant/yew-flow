@@ -98,9 +98,9 @@ fn app() -> Html {
     html! {
         <div class="flex flex-col bg-neutral-900 text-neutral-300 p-4" style="width: 100vw; height: 100vh;">
             <div class="flex">
-                <span>
+                <h1 class="pb-1 text-cyan-200">
                     {"YewFlow Demo (Work in Progress)"}
-                </span>
+                </h1>
             </div>
             <div class="flex-1 min-h-0 flex">
                 <div class="flex-1 mr-2 h-full flex flex-col min-h-0">
@@ -114,7 +114,7 @@ fn app() -> Html {
                     <textarea
                         type="text"
                         ref={text_area_ref.clone()}
-                        class="flex-1 resize-none w-full h-full border-2 border-neutral-400 bg-slate-800 focus:outline-none focus:border-neutral-300 text-cyan-300 selection:bg-sky-700"
+                        class="flex-1 resize-none w-full h-full p-2 border-2 border-neutral-400 bg-slate-800 focus:outline-none focus:border-neutral-300 text-cyan-300 selection:bg-sky-700"
                         value={(*json_text).clone()}
                         onkeyup={on_key_up}
                         onfocus={on_focus}
