@@ -1,9 +1,11 @@
-use serde::Serialize;
-use serde_json::ser::PrettyFormatter;
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
 use yew_flow::{store::WorkspaceStore, workspace::YewFlowValues, Workspace};
+
+use crate::utils::flow_utils::{parse_flow_json_text_to_values, values_to_flow_json_text};
+
+mod utils;
 
 #[function_component(App)]
 fn app() -> Html {
@@ -14,55 +16,40 @@ fn app() -> Html {
     });
     let error = use_state(|| None);
     let text_area_ref = use_node_ref();
-    let json_text = {
-        let values = values.clone();
-        use_memo(
-            |values| {
-                let values = values.clone();
-                // pretty formatter with ident: ref: https://stackoverflow.com/questions/42722169/generate-pretty-indented-json-with-serde
-                let mut ser = serde_json::Serializer::with_formatter(
-                    Vec::new(),
-                    PrettyFormatter::with_indent(b"    "),
-                );
-                let json_value = serde_json::to_value(&(*values).clone()).unwrap();
-                json_value.serialize(&mut ser).unwrap();
-                String::from_utf8(ser.into_inner()).unwrap()
-            },
-            values,
-        )
-    };
+    let json_text = use_state(|| {
+        let WorkspaceStore { nodes, edges, .. } = WorkspaceStore::generate();
+        let values = YewFlowValues { nodes, edges };
+        values_to_flow_json_text(&values).unwrap()
+    });
 
     let on_change = {
-        let values = values.clone();
+        let values_setter = values.setter().clone();
+        let json_text_setter = json_text.setter().clone();
         let prevent_changes = prevent_changes.clone();
         use_callback(
-            move |new_values, prevent_changes| {
+            move |new_values: YewFlowValues, (prevent_changes, values_setter)| {
                 if !*prevent_changes.clone() {
-                    values.set(new_values)
+                    values_setter.set(new_values.clone());
+                    match values_to_flow_json_text(&new_values) {
+                        Ok(json_text) => json_text_setter.set(json_text),
+                        Err(e) => log::error!("{}", e),
+                    }
                 }
             },
-            prevent_changes,
+            (prevent_changes, values_setter),
         )
     };
 
     let on_key_up = {
-        let set_values = values.setter().clone();
-        let set_error = error.setter().clone();
+        let json_text_setter = json_text.setter().clone();
         let text_area_ref = text_area_ref.clone();
         use_callback(
-            move |_, (set_values, text_area_ref, set_error)| {
-                set_error.set(None);
+            move |_, (json_text_setter, text_area_ref)| {
                 if let Some(elm) = text_area_ref.cast::<HtmlTextAreaElement>() {
-                    match serde_json::from_str::<YewFlowValues>(&elm.value()) {
-                        Ok(values) => set_values.set(values),
-                        Err(e) => {
-                            set_error.set(Some(e.to_string()));
-                            log::error!("{:?}", e);
-                        }
-                    }
+                    json_text_setter.set(elm.value())
                 }
             },
-            (set_values, text_area_ref, set_error),
+            (json_text_setter, text_area_ref),
         )
     };
 
@@ -83,6 +70,28 @@ fn app() -> Html {
                 prevent_changes.set(false);
             },
             prevent_changes,
+        )
+    };
+
+    {
+        let values_setter = values.setter().clone();
+        let error_setter = error.setter().clone();
+        let json_text = json_text.clone();
+        use_effect_with_deps(
+            |(json_text, values_setter, error_setter)| {
+                match parse_flow_json_text_to_values(json_text) {
+                    Ok(values) => {
+                        values_setter.set(values);
+                        error_setter.set(None);
+                    }
+                    Err(e) => {
+                        error_setter.set(Some(e.to_string()));
+                        log::error!("{:?}", e);
+                    }
+                };
+                || ()
+            },
+            (json_text, values_setter, error_setter),
         )
     };
 
