@@ -118,7 +118,10 @@ pub fn render_node(
     let handle_mouse_up = {
         let on_mouse_up = on_mouse_up.clone();
         let node = node.clone();
-        Callback::from(move |_| on_mouse_up.emit(node.clone()))
+        Callback::from(move |e: MouseEvent| {
+            e.stop_propagation();
+            on_mouse_up.emit(node.clone())
+        })
     };
     let handle_click = {
         let on_click = on_click.clone();
