@@ -185,7 +185,7 @@ impl Reducible for WorkspaceStore {
 
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
         // log::info!("current_state: {:?}", self.clone());
-        log::info!("action: {:?}", action);
+        // log::info!("action: {:?}", action);
         let viewport = self.viewport.clone();
         let mut nodes = self.nodes.clone();
         let mut edges = self.edges.clone();
