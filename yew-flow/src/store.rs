@@ -71,7 +71,7 @@ pub enum WorkspaceAction {
     /// When new edge drag needs to be activated.
     NewEdgeDragActivate(NewEdgeDragActivateCmd),
     /// When new edge needs to be dragged out.
-    DragEdge(DragEdgeCmd),
+    EdgeDrag(DragEdgeCmd),
     /// When new edge drag needs to be deactivated.
     NewEdgeDragDeactivate(NewEdgeDragDeactivateCmd),
 }
@@ -356,7 +356,7 @@ impl Reducible for WorkspaceStore {
                 }
                 .into()
             }
-            WorkspaceAction::DragEdge(DragEdgeCmd { x, y }) => {
+            WorkspaceAction::EdgeDrag(DragEdgeCmd { x, y }) => {
                 if let InteractionMode::NewEdgeDrag(NewEdgeDragMode { ref from_connector }) =
                     interaction_mode
                 {

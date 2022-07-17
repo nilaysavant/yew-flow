@@ -73,7 +73,7 @@ pub fn workspace(
                         InteractionMode::NewEdgeDrag(_) => {
                             let x = viewport.relative_x_pos_from_abs(e.page_x().into(), None);
                             let y = viewport.relative_y_pos_from_abs(e.page_y().into(), None);
-                            dispatcher.dispatch(WorkspaceAction::DragEdge(DragEdgeCmd { x, y }))
+                            dispatcher.dispatch(WorkspaceAction::EdgeDrag(DragEdgeCmd { x, y }))
                         }
                     }
                 }
