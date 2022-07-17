@@ -65,7 +65,7 @@ pub enum WorkspaceAction {
     /// When node drag needs to be activated.
     NodeDragActivate(StandardId),
     /// When node needs to be dragged.
-    DragNode(DragNodeCmd),
+    NodeDrag(DragNodeCmd),
     /// When node drag needs to be deactivated.
     NodeDragDeactivate,
     /// When new edge drag needs to be activated.
@@ -242,7 +242,7 @@ impl Reducible for WorkspaceStore {
                 }
                 .into()
             }
-            WorkspaceAction::DragNode(DragNodeCmd { x, y }) => {
+            WorkspaceAction::NodeDrag(DragNodeCmd { x, y }) => {
                 if let InteractionMode::NodeDrag(ref id) = interaction_mode {
                     let active_node = nodes.iter_mut().find(|n| n.id == *id);
                     if let Some(active_node) = active_node {

@@ -68,7 +68,7 @@ pub fn workspace(
                                 .relative_x_pos_from_abs(e.page_x().into(), Some(NODE_WIDTH));
                             let y = viewport
                                 .relative_y_pos_from_abs(e.page_y().into(), Some(NODE_HEIGHT));
-                            dispatcher.dispatch(WorkspaceAction::DragNode(DragNodeCmd { x, y }))
+                            dispatcher.dispatch(WorkspaceAction::NodeDrag(DragNodeCmd { x, y }))
                         }
                         InteractionMode::NewEdgeDrag(_) => {
                             let x = viewport.relative_x_pos_from_abs(e.page_x().into(), None);
