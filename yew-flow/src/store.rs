@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, fmt::Display, rc::Rc};
 
 use web_sys::Element;
 use yew::prelude::*;
@@ -17,6 +17,7 @@ use crate::{
     workspace::YewFlowValues,
 };
 
+#[derive(Debug)]
 pub struct DragNodeCmd {
     pub x: StandardUnit,
     pub y: StandardUnit,
@@ -33,6 +34,7 @@ pub enum Connector {
     Output(StandardId),
 }
 
+#[derive(Debug)]
 pub struct NewEdgeDragActivateCmd {
     /// reference to the from connector
     pub from_reference: NodeRef,
@@ -40,6 +42,7 @@ pub struct NewEdgeDragActivateCmd {
     pub from_connector: Connector,
 }
 
+#[derive(Debug)]
 pub struct NewEdgeDragDeactivateCmd {
     /// reference to the to connector
     pub to_reference: Option<NodeRef>,
@@ -47,6 +50,7 @@ pub struct NewEdgeDragDeactivateCmd {
     pub to_connector: Option<Connector>,
 }
 
+#[derive(Debug)]
 pub struct DragEdgeCmd {
     // x cord to which dragged edge is ending.
     pub x: StandardUnit,
@@ -57,6 +61,7 @@ pub struct DragEdgeCmd {
 /// # Yew Flow Workspace Action
 ///
 /// Actions to be dispatched to `WorkspaceStore`.
+#[derive(Debug)]
 pub enum WorkspaceAction {
     /// Init/Re-init store
     Init(Option<YewFlowValues>),
@@ -179,6 +184,8 @@ impl Reducible for WorkspaceStore {
     type Action = WorkspaceAction;
 
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
+        // log::info!("current_state: {:?}", self.clone());
+        log::info!("action: {:?}", action);
         let viewport = self.viewport.clone();
         let mut nodes = self.nodes.clone();
         let mut edges = self.edges.clone();
