@@ -2,9 +2,10 @@
 
 WIP Node/Flow editor library in yew.rs
 
+![Screenshot](./media/editor-animation-1.gif)
 ![Screenshot](./media/nodes-screenshot-1.png)
 
-## Documentation
+## References
 
 - For `trunk` serve config refer: [https://trunkrs.dev/assets/](https://trunkrs.dev/assets/).
 - Trunk cargo workspace [issue](https://github.com/thedodd/trunk/issues/386).
